@@ -3,13 +3,13 @@ from flask import request
 
 from ducttapp import models, services
 
-ns = Namespace('register', description='Sign in operators')
+ns = Namespace('signup', description='Sign in operators')
 
 _signup_request_req = ns.model(
     'signup_request_req', models.SignupSchema.signup_request_req)
 _signup_request_res = ns.model(
     'signup_request_res', models.SignupSchema.signup_request_res)
-_verify_res = ns.model(model={
+_verify_res = ns.model('',model={
     'message': fields.String(required=True, description='verify success or not'),
 })
 
