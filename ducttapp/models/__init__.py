@@ -12,3 +12,5 @@ def init_app(app, **kwargs):
     db.init_app(app)
 
 from .signup import Signup_Request, SignupSchema
+from .user import User
+from .user_token import User_Token

@@ -33,7 +33,6 @@ class Signup_Request(db.Model):
     def create_token(self):
         token_data = {
             "username" : self.username,
-            "exp": self.expired_time
         }
         token_string = token.encode_token(token_data)
         self.user_token_confirm = token_string.decode('UTF-8')

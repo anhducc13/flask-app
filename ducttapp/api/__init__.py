@@ -1,6 +1,6 @@
 from flask import Blueprint
 from flask_restplus import Api
-from .signup import ns as signup_ns
+from .auth import ns as auth_ns
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
 
@@ -18,5 +18,5 @@ def init_app(app, **kwargs):
     :param kwargs:
     :return:
     """
-    api.add_namespace(signup_ns)
+    api.add_namespace(auth_ns)
     app.register_blueprint(api_bp)
