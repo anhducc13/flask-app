@@ -2,7 +2,8 @@ from ducttapp.models import db, bcrypt
 import config
 from datetime import datetime, timedelta
 from flask_restplus import fields
-import jwt
+from ducttapp.helpers import token
+
 
 class Signup_Request(db.Model):
     def __init__(self, **kwargs):
@@ -17,9 +18,7 @@ class Signup_Request(db.Model):
     email = db.Column(db.String(128), nullable=False, unique=True)
     password_hash = db.Column(db.Text(), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.TIMESTAMP, default=datetime.now)
-    update_at = db.Column(db.TIMESTAMP, default=datetime.now)
-    expired_time = db.Column(db.TIMESTAMP, nullable=False)
+    expired_time = db.Column(db.TIMESTAMP, default=(datetime.now() + timedelta(minutes=30)))
     user_token_confirm = db.Column(db.Text(), nullable=False)
 
     @property
@@ -36,8 +35,8 @@ class Signup_Request(db.Model):
             "username" : self.username,
             "exp": self.expired_time
         }
-        token = jwt.encode(token_data, config.FLASK_APP_SECRET_KEY , 'HS256')
-        self.user_token_confirm = token.decode('UTF-8')
+        token_string = token.encode_token(token_data)
+        self.user_token_confirm = token_string.decode('UTF-8')
 
 class SignupSchema:
     signup_request_req = {
