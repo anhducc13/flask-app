@@ -25,3 +25,7 @@ class UnAuthorizedException(HTTPException):
 class ForbiddenException(HTTPException):
     def __init__(self, message='Permission Denied', errors=None):
         super().__init__(code=403, message=message, errors=errors)
+
+class ConflictException(HTTPException):
+    def __init__(self, message='Conflict', errors=None):
+        super().__init__(code=409, message=message, errors=errors)

@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 
 def create_app():
     import config
@@ -13,6 +14,7 @@ def create_app():
         instance_relative_config=True,
         instance_path=os.path.join(config.ROOT_DIR, 'instance')
     )
+    CORS(app)
     app.secret_key = config.FLASK_APP_SECRET_KEY
     load_app_config(app)
     api.init_app(app)

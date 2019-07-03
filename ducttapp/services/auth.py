@@ -15,7 +15,7 @@ def register(username, email, password, **kwargs):
         existed_user_not_verify = repositories.signup.find_one_by_email_or_username_in_signup_request(
             email, username)
         if existed_user or existed_user_not_verify:
-            raise extensions.exceptions.BadRequestException(
+            raise extensions.exceptions.ConflictException(
                 "User with username {username} "
                 "or email {email} already existed!".format(
                     username=username,
@@ -73,7 +73,7 @@ def login(username, password):
                 "username": user.username,
                 "time_expired": datetime.timestamp(user_token.expired_time)
             }
-        raise extensions.exceptions.NotFoundException("User not found")
+        return ('', 204)
     else:
         raise extensions.exceptions.BadRequestException("Invalid user data specified!")
 

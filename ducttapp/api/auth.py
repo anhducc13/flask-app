@@ -65,6 +65,7 @@ class Logout(Resource):
     @ns.expect(parser)
     def get(self):
         auth_header = request.headers.get('Authorization')
+        print(auth_header)
         if auth_header:
             return services.auth.logout(auth_header)
         raise extensions.exceptions.UnAuthorizedException('Need access token')
