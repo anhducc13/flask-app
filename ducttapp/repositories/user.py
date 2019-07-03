@@ -1,5 +1,6 @@
 from sqlalchemy import or_
 from ducttapp import models
+from ducttapp import repositories
 
 
 def save_user_from_signup_request_to_user(**kwargs):
@@ -23,7 +24,8 @@ def update_last_login(user):
     user.update_last_login()
     models.db.session.commit()
 
-# def add_session_login(user):
+def add_session_login(user):
+    return repositories.user_token.add_user_token(user)
 
 
 def delete_one_by_email_or_username_in_user(user):

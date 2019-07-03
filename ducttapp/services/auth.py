@@ -70,11 +70,17 @@ def login(username, password):
     ):
         user = repositories.user.find_one_by_email_or_username_in_user(
             username=username)
-        if user:
-            if user.check_password(password):
-                # repositories.user.add_session_login()
-                repositories.user.update_last_login(user)
-                return user
-        return None
+        if user and user.check_password(password):
+            access_token = repositories.user.add_session_login(user=user)
+            repositories.user.update_last_login(user)
+            return {
+                "access_token": access_token,
+                "user_info": user.to_dict()
+            }
+        return {
+            "error": {
+                "message": "Username or password is incorrect"
+            }
+        }
     else:
         raise exceptions.BadRequestException("Invalid user data specified!")

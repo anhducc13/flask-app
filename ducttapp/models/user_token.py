@@ -13,5 +13,5 @@ class User_Token(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     created_at = db.Column(db.TIMESTAMP, default=datetime.now)
-    expired_time = db.Column(db.TIMESTAMP, nullable=False, default=(datetime.now() + timedelta(minutes=30)))
+    expired_time = db.Column(db.TIMESTAMP, default=(datetime.now() + timedelta(minutes=30)))
     token = db.Column(db.Text(), nullable=False)

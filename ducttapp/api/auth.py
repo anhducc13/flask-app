@@ -44,8 +44,6 @@ class Login(Resource):
     @ns.expect(_login_req, validate=True)
     def post(self):
         data = request.json or request.args
-        user = services.auth.login(**data)
-        if user:
-            return user.to_dict()
-        return {"error": {"message": "Username or password is incorrect"}}
+        result = services.auth.login(**data)
+        return result
 
