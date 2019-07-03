@@ -24,6 +24,7 @@ def update_last_login(user):
     user.update_last_login()
     models.db.session.commit()
 
+
 def add_session_login(user):
     return repositories.user_token.add_user_token(user)
 
@@ -31,3 +32,12 @@ def add_session_login(user):
 def delete_one_by_email_or_username_in_user(user):
     models.db.session.delete(user)
     models.db.session.commit()
+
+
+def update_password(username, new_pass):
+    user = models.User.query.filter(
+        models.User.username == username,
+    ).first()
+    if user:
+        user.update_password(new_pass)
+        models.db.session.commit()

@@ -6,6 +6,6 @@ def encode_token(option):
 
 def decode_token(token_string):
     try:
-        return jwt.decode(token_string, config.FLASK_APP_SECRET_KEY)
+        return (jwt.decode(token_string, config.FLASK_APP_SECRET_KEY,'HS256'))
     except:
         return []

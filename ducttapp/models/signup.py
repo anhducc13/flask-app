@@ -1,5 +1,6 @@
 from ducttapp.models import db, bcrypt
 import config
+import jwt
 from datetime import datetime, timedelta
 from flask_restplus import fields
 from ducttapp.helpers import token
@@ -33,8 +34,9 @@ class Signup_Request(db.Model):
     def create_token(self):
         token_data = {
             "username" : self.username,
+            "exp": self.expired_time
         }
-        token_string = token.encode_token(token_data)
+        token_string = jwt.encode(token_data, config.FLASK_APP_SECRET_KEY)
         self.user_token_confirm = token_string.decode('UTF-8')
 
 class SignupSchema:

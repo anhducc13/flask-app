@@ -25,6 +25,10 @@ class User(db.Model):
     def check_password(self, password):
         return bcrypt.check_password_hash(self.password_hash, password)
 
+    def update_password(self, password):
+        self.password_hash = bcrypt.generate_password_hash(
+            password).decode('utf-8')
+
     def update_last_login(self):
         self.last_login = datetime.now()
 
@@ -35,6 +39,6 @@ class User(db.Model):
             'email': self.email,
             'is_admin': self.is_admin,
             'is_active': self.is_active,
-            'last_login': datetime.timestamp(self.last_login),
+            'last_login': self.last_login,
         }
 

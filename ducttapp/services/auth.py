@@ -1,9 +1,7 @@
-import re
-from datetime import datetime
-import json
+import re, jwt, config, json
+from datetime import datetime, timedelta
 from ducttapp import models
-from ducttapp import repositories, helpers
-from ducttapp.extensions import exceptions
+from ducttapp import repositories, helpers, extensions
 
 
 def register(username, email, password, **kwargs):
@@ -17,7 +15,7 @@ def register(username, email, password, **kwargs):
         existed_user_not_verify = repositories.signup.find_one_by_email_or_username_in_signup_request(
             email, username)
         if existed_user or existed_user_not_verify:
-            raise exceptions.BadRequestException(
+            raise extensions.exceptions.BadRequestException(
                 "User with username {username} "
                 "or email {email} already existed!".format(
                     username=username,
@@ -33,14 +31,12 @@ def register(username, email, password, **kwargs):
         )
         return user
     else:
-        raise exceptions.BadRequestException("Invalid user data specified!")
+        raise extensions.exceptions.BadRequestException("Invalid user data specified!")
 
 
 def verify(token_string):
-    token_data = helpers.token.decode_token(token_string)
-    if not token_data:
-        raise exceptions.BadRequestException("Invalid token!")
-    else:
+    try:
+        token_data = jwt.decode(token_string, config.FLASK_APP_SECRET_KEY)
         username = token_data["username"]
         user = repositories.signup.find_one_by_email_or_username_in_signup_request(
             username=username)
@@ -48,19 +44,18 @@ def verify(token_string):
             # delete user from signup_request
             repositories.signup.delete_one_by_email_or_username_in_signup_request(
                 user)
-
-            now = datetime.timestamp(datetime.now())
-            expired = datetime.timestamp(user.expired_time)
-            if expired - now >= 0:
-                repositories.user.save_user_from_signup_request_to_user(
-                    username=user.username,
-                    email=user.email,
-                    password_hash=user.password_hash,
-                    is_admin=user.is_admin,
-                )
-                return {"message": "success"}
-            raise exceptions.UnAuthorizedException(message="expired token")
-        raise exceptions.NotFoundException(message="not found user")
+            user = repositories.user.save_user_from_signup_request_to_user(
+                username=user.username,
+                email=user.email,
+                password_hash=user.password_hash,
+                is_admin=user.is_admin,
+            )
+            return user.to_dict()
+    except jwt.ExpiredSignature:
+        repositories.signup.delete_one_by_token(token_string)
+        raise extensions.exceptions.BadRequestException(message='expired token')
+    except jwt.PyJWTError as e:
+        raise extensions.exceptions.BadRequestException(message='have an error')
 
 
 def login(username, password):
@@ -71,16 +66,44 @@ def login(username, password):
         user = repositories.user.find_one_by_email_or_username_in_user(
             username=username)
         if user and user.check_password(password):
-            access_token = repositories.user.add_session_login(user=user)
+            user_token = repositories.user.add_session_login(user=user)
             repositories.user.update_last_login(user)
             return {
-                "access_token": access_token,
-                "user_info": user.to_dict()
+                "access_token": user_token.token,
+                "username": user.username,
+                "time_expired": datetime.timestamp(user_token.expired_time)
             }
-        return {
-            "error": {
-                "message": "Username or password is incorrect"
-            }
-        }
+        raise extensions.exceptions.NotFoundException("User not found")
     else:
-        raise exceptions.BadRequestException("Invalid user data specified!")
+        raise extensions.exceptions.BadRequestException("Invalid user data specified!")
+
+
+def logout(token_string):
+    try:
+        token_data = jwt.decode(token_string, config.FLASK_APP_SECRET_KEY)
+        repositories.user_token.delete_user_token(token_string)
+        return {
+            "message": "logout success"
+        }
+    except jwt.ExpiredSignature:
+        repositories.user_token.delete_user_token(token_string)
+        raise extensions.exceptions.BadRequestException(message='expired token, auto logout')
+    except jwt.PyJWTError as e:
+        raise extensions.exceptions.BadRequestException(message='have an error')
+
+
+def reset_pass(token_string, old_pass, new_pass):
+    if(old_pass == new_pass):
+        raise extensions.exceptions.BadRequestException(message="two password is duplicate")
+    try:
+        token_data = jwt.decode(token_string, config.FLASK_APP_SECRET_KEY)
+        username = token_data['username']
+        repositories.user.update_password(username, new_pass)
+        return {
+            "message": "update password success"
+        }        
+    except jwt.ExpiredSignature:
+        repositories.user_token.delete_user_token(token_string)
+        raise extensions.exceptions.BadRequestException(message='expired token, auto logout')
+    except jwt.PyJWTError as e:
+        raise extensions.exceptions.BadRequestException(message='have an error')

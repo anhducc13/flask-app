@@ -1,9 +1,9 @@
 from flask import Flask
+
 def create_app():
     import config
     import os
-    from . import api, models
-
+    from . import api, models, extensions
     def load_app_config(app):
         app.config.from_object(config)
         app.config.from_pyfile('config.py', silent=True)
