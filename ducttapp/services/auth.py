@@ -2,6 +2,7 @@ import re, jwt, config, json
 from datetime import datetime, timedelta
 from ducttapp import models
 from ducttapp import repositories, helpers, extensions
+from . import mail_service
 
 
 def register(username, email, password, **kwargs):
@@ -22,13 +23,14 @@ def register(username, email, password, **kwargs):
                     email=email
                 )
             )
-
         user = repositories.signup.save_user_to_signup_request(
             username=username,
             email=email,
             password=password,
             **kwargs
         )
+        if user:
+            mail_service.send_email_verify(user)
         return user
     else:
         raise extensions.exceptions.BadRequestException("Invalid user data specified!")
@@ -50,12 +52,11 @@ def verify(token_string):
                 password_hash=user.password_hash,
                 is_admin=user.is_admin,
             )
-            return user.to_dict()
+            return "success"
     except jwt.ExpiredSignature:
-        repositories.signup.delete_one_by_token(token_string)
-        raise extensions.exceptions.BadRequestException(message='expired token')
+        return "expired token"
     except jwt.PyJWTError as e:
-        raise extensions.exceptions.BadRequestException(message='have an error')
+        return "have an error"
 
 
 def login(username, password):
@@ -98,12 +99,16 @@ def reset_pass(token_string, old_pass, new_pass):
     try:
         token_data = jwt.decode(token_string, config.FLASK_APP_SECRET_KEY)
         username = token_data['username']
+        user = repositories.user.find_one_by_email_or_username_in_user(username=username)
+        print(user.to_dict())
+        if not user.check_password(old_pass):
+            raise extensions.exceptions.BadRequestException(message='password is not match')
         repositories.user.update_password(username, new_pass)
         return {
             "message": "update password success"
         }        
     except jwt.ExpiredSignature:
         repositories.user_token.delete_user_token(token_string)
-        raise extensions.exceptions.BadRequestException(message='expired token, auto logout')
+        raise extensions.exceptions.UnAuthorizedException(message='expired token')
     except jwt.PyJWTError as e:
         raise extensions.exceptions.BadRequestException(message='have an error')
