@@ -29,6 +29,10 @@ class User(db.Model):
         self.password_hash = bcrypt.generate_password_hash(
             password).decode('utf-8')
 
+    def update_attr(self, **kwargs):
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
     def update_last_login(self):
         self.last_login = datetime.now()
 

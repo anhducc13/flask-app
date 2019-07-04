@@ -1,5 +1,6 @@
 from werkzeug.exceptions import HTTPException as BaseHTTPException
 
+
 class HTTPException(BaseHTTPException):
     def __init__(self, code=400, message=None, errors=None):
         super().__init__(description=message, response=None)
