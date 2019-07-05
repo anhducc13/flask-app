@@ -26,6 +26,14 @@ _login_req = ns.model(
     }
 )
 
+_login_res = ns.model(
+    'login_response', model={
+        'username': fields.String(required=True, description='user name login'),
+        'access_token': fields.String(required=True, description='access token login'),
+        'time_expired': fields.DateTime(required=True, description='time expired login session')
+    }
+)
+
 _reset_pass_req = ns.model(
     'reset_password_request', model={
         'old_password': fields.String(required=True, description='old password'),
@@ -55,6 +63,7 @@ class Verify(Resource):
 @ns.route('/login')
 class Login(Resource):
     @ns.expect(_login_req, validate=True)
+    @ns.marshal_with(_login_res)
     def post(self):
         data = request.json or request.args
         user = services.auth.login(**data)
