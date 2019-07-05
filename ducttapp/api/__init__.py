@@ -1,6 +1,7 @@
 from flask import Blueprint
 from flask_restplus import Api
 from .auth import ns as auth_ns
+from ducttapp.extensions.exceptions import global_error_handler
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
 
@@ -20,3 +21,4 @@ def init_app(app, **kwargs):
     """
     api.add_namespace(auth_ns)
     app.register_blueprint(api_bp)
+    api.error_handlers[Exception] = global_error_handler

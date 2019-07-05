@@ -33,13 +33,9 @@ def register(username, email, password, **kwargs):
             password=password,
             **kwargs
         )
-        if not user:
-            raise InternalServerError('Lỗi server')
-
         if mail_service.send_email_verify(user):
             return user
-        else:
-            raise InternalServerError('Lỗi mail server')
+        return None
     else:
         raise extensions.exceptions.BadRequestException(
             "Dữ liệu truyền lên không phù hợp")
@@ -49,23 +45,20 @@ def verify(token_string):
     try:
         token_data = jwt.decode(token_string, config.FLASK_APP_SECRET_KEY)
         username = token_data["username"]
-        user_signup_request = repositories.signup.delete_one_by_email_or_username_in_signup_request(
+        user_signup_request = repositories.signup.find_one_by_email_or_username_in_signup_request(
             username=username)
         if user_signup_request:
-            user_verified = repositories.user.save_user_from_signup_request_to_user(
+            repositories.signup.delete_one_in_signup_request(user_signup_request)
+            repositories.user.save_user_from_signup_request_to_user(
                 username=user_signup_request.username,
                 email=user_signup_request.email,
                 password_hash=user_signup_request.password_hash,
                 is_admin=user_signup_request.is_admin,
             )
-            if user_verified:
-                return "Xác thực thành công"
-            return "Có lỗi xảy ra"
+            return "Xác thực thành công"
         return "Tài khoản đã được xác thực trước đó"
     except jwt.ExpiredSignature:
         return "Hết hạn xác thực"
-    except Exception as e:
-        return "Có lỗi xảy ra"
 
 
 def login(username, password):
@@ -92,6 +85,8 @@ def login(username, password):
 
 
 def logout(token_string):
+    if not token_string:
+        raise extensions.exceptions.UnAuthorizedException('need access token')
     try:
         token_data = jwt.decode(token_string, config.FLASK_APP_SECRET_KEY)
         repositories.user_token.delete_user_token(token_string)
@@ -102,11 +97,15 @@ def logout(token_string):
         repositories.user_token.delete_user_token(token_string)
         raise extensions.exceptions.UnAuthorizedException(
             message='expired token, auto logout')
-    except Exception:
-        raise InternalServerError('Lỗi server')
 
 
 def reset_pass(token_string, old_pass, new_pass):
+    if not token_string:
+        raise extensions.exceptions.UnAuthorizedException('need access token')
+    
+    if not old_pass or not new_pass:
+        raise extensions.exceptions.BadRequestException('Invalid data')
+
     if old_pass == new_pass:
         raise extensions.exceptions.BadRequestException(
             message="two password is duplicate")
@@ -120,14 +119,10 @@ def reset_pass(token_string, old_pass, new_pass):
                 message='password is not match')
         update_user = repositories.user.update_user(
             username=username, password_hash=new_pass)
-        if update_user:
-            return {
-                "message": "update password success"
-            }
-        raise InternalServerError('Lỗi server')
+        return {
+            "message": "update password success"
+        }
     except jwt.ExpiredSignature:
         repositories.user_token.delete_user_token(token_string)
         raise extensions.exceptions.UnAuthorizedException(
             message='expired token')
-    except:
-        raise InternalServerError('Lỗi server')

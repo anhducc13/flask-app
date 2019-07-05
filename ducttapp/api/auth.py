@@ -40,6 +40,7 @@ class Register(Resource):
     @ns.marshal_with(_signup_request_res)
     def post(self):
         data = request.json or request.args
+        print(data)
         user = services.auth.register(**data)
         return user
 
@@ -65,10 +66,8 @@ class Logout(Resource):
     @ns.expect(parser)
     def get(self):
         auth_header = request.headers.get('Authorization')
-        print(auth_header)
-        if auth_header:
-            return services.auth.logout(auth_header)
-        raise extensions.exceptions.UnAuthorizedException('Need access token')
+        message = services.auth.logout(auth_header)
+        return message
 
 
 @ns.route('/reset-password')
@@ -76,11 +75,10 @@ class ResetPassword(Resource):
     @ns.expect(_reset_pass_req)
     def post(self):
         auth_header = request.headers.get('Authorization')
-        if auth_header:
-            two_pass = request.json
-            return services.auth.reset_pass(
-                auth_header,
-                two_pass['old_pass'],
-                two_pass['new_pass']
-            )
-        raise extensions.exceptions.UnAuthorizedException('Need access token')
+        two_pass = request.json
+        message = services.auth.reset_pass(
+            auth_header,
+            two_pass['old_pass'],
+            two_pass['new_pass']
+        )
+        return message
