@@ -3,8 +3,6 @@ import config
 import jwt
 from datetime import datetime, timedelta
 from flask_restplus import fields
-from ducttapp.helpers import token
-
 
 class Signup_Request(db.Model):
     def __init__(self, **kwargs):

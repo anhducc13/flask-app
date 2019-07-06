@@ -2,13 +2,15 @@ from ducttapp.models import db, bcrypt
 from datetime import datetime, timedelta
 from flask_restplus import fields
 import sqlalchemy as _sa
-from ducttapp.helpers import token
 from sqlalchemy.orm import relationship
 
 class User(db.Model):
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
-            setattr(self, k, v)
+            if k == "password_hash":
+                self.update_password(v)
+            else:
+                setattr(self, k, v)
 
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -31,7 +33,10 @@ class User(db.Model):
 
     def update_attr(self, **kwargs):
         for k, v in kwargs.items():
-            setattr(self, k, v)
+            if k == "password_hash":
+                self.update_password(v)
+            else:
+                setattr(self, k, v)
 
     def update_last_login(self):
         self.last_login = datetime.now()

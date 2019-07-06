@@ -30,7 +30,7 @@ _login_res = ns.model(
     'login_response', model={
         'username': fields.String(required=True, description='user name login'),
         'access_token': fields.String(required=True, description='access token login'),
-        'time_expired': fields.DateTime(required=True, description='time expired login session')
+        'time_expired': fields.Float(required=True, description='time expired login session')
     }
 )
 
@@ -41,6 +41,19 @@ _reset_pass_req = ns.model(
     }
 )
 
+_forgot_pass_req = ns.model(
+    'forgor_password_request', model={
+        'username': fields.String(required=True, description='username'),
+        'email': fields.String(required=True, description='email'),
+    }
+)
+
+_forgot_pass_res = ns.model(
+    'forgor_password_response', model={
+        'message': fields.String(required=True, description='message'),
+    }
+)
+
 
 @ns.route('/register')
 class Register(Resource):
@@ -48,7 +61,6 @@ class Register(Resource):
     @ns.marshal_with(_signup_request_res)
     def post(self):
         data = request.json or request.args
-        print(data)
         user = services.auth.register(**data)
         return user
 
@@ -81,13 +93,23 @@ class Logout(Resource):
 
 @ns.route('/reset-password')
 class ResetPassword(Resource):
-    @ns.expect(_reset_pass_req)
+    @ns.doc(body=_reset_pass_req, parser=parser)
     def post(self):
         auth_header = request.headers.get('Authorization')
-        two_pass = request.json
+        two_pass = request.json or request.args
         message = services.auth.reset_pass(
             auth_header,
-            two_pass['old_pass'],
-            two_pass['new_pass']
+            two_pass['old_password'],
+            two_pass['new_password']
         )
+        return message
+
+
+@ns.route('/forgot-password')
+class ForgotPassword(Resource):
+    @ns.expect(_forgot_pass_req, validate=True)
+    @ns.marshal_with(_forgot_pass_res)
+    def post(self):
+        data = request.json or request.args
+        message = services.auth.forgot_pass(**data)
         return message

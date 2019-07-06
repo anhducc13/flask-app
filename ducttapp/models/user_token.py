@@ -1,7 +1,6 @@
 from ducttapp.models import db
 from datetime import datetime, timedelta
 from flask_restplus import fields
-from ducttapp.helpers import token
 from sqlalchemy.orm import relationship
 
 class User_Token(db.Model):

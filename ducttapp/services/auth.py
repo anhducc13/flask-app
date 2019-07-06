@@ -4,9 +4,9 @@ import config
 import json
 from datetime import datetime, timedelta
 from ducttapp import models
-from ducttapp import repositories, helpers, extensions
+from ducttapp import repositories, helpers, extensions, models
 from . import mail_service
-from werkzeug.exceptions import InternalServerError
+from werkzeug.exceptions import BadGateway
 
 
 def register(username, email, password, **kwargs):
@@ -35,7 +35,8 @@ def register(username, email, password, **kwargs):
         )
         if mail_service.send_email_verify(user):
             return user
-        return None
+        else:
+            raise BadGateway("Mail server failed")
     else:
         raise extensions.exceptions.BadRequestException(
             "Dữ liệu truyền lên không phù hợp")
@@ -48,7 +49,8 @@ def verify(token_string):
         user_signup_request = repositories.signup.find_one_by_email_or_username_in_signup_request(
             username=username)
         if user_signup_request:
-            repositories.signup.delete_one_in_signup_request(user_signup_request)
+            repositories.signup.delete_one_in_signup_request(
+                user_signup_request)
             repositories.user.save_user_from_signup_request_to_user(
                 username=user_signup_request.username,
                 email=user_signup_request.email,
@@ -59,6 +61,8 @@ def verify(token_string):
         return "Tài khoản đã được xác thực trước đó"
     except jwt.ExpiredSignature:
         return "Hết hạn xác thực"
+    except jwt.DecodeError:
+        return "Token bị lỗi"
 
 
 def login(username, password):
@@ -77,7 +81,7 @@ def login(username, password):
                 "username": user.username,
                 "time_expired": datetime.timestamp(user_token.expired_time)
             }
-        raise extensions.exceptions.ForbiddenException(
+        raise extensions.exceptions.NotFoundException(
             "Tài khoản hoặc mật khẩu bị sai")
     else:
         raise extensions.exceptions.BadRequestException(
@@ -97,28 +101,33 @@ def logout(token_string):
         repositories.user_token.delete_user_token(token_string)
         raise extensions.exceptions.UnAuthorizedException(
             message='expired token, auto logout')
+    except jwt.DecodeError:
+        raise extensions.exceptions.BadRequestException(
+            message='token is wrong')
 
 
-def reset_pass(token_string, old_pass, new_pass):
+def reset_pass(token_string, old_password, new_password):
     if not token_string:
         raise extensions.exceptions.UnAuthorizedException('need access token')
-    
-    if not old_pass or not new_pass:
-        raise extensions.exceptions.BadRequestException('Invalid data')
 
-    if old_pass == new_pass:
-        raise extensions.exceptions.BadRequestException(
-            message="two password is duplicate")
     try:
         token_data = jwt.decode(token_string, config.FLASK_APP_SECRET_KEY)
         username = token_data['username']
+
+        if not old_password or not new_password:
+            raise extensions.exceptions.BadRequestException('Invalid data')
+
+        if old_password == new_password:
+            raise extensions.exceptions.BadRequestException(
+                message="two password is duplicate")
+
         user = repositories.user.find_one_by_email_or_username_in_user(
             username=username)
-        if not user.check_password(old_pass):
+        if not user.check_password(old_password):
             raise extensions.exceptions.BadRequestException(
                 message='password is not match')
-        update_user = repositories.user.update_user(
-            username=username, password_hash=new_pass)
+        repositories.user.update_user(
+            username=username, password_hash=new_password)
         return {
             "message": "update password success"
         }
@@ -126,3 +135,31 @@ def reset_pass(token_string, old_pass, new_pass):
         repositories.user_token.delete_user_token(token_string)
         raise extensions.exceptions.UnAuthorizedException(
             message='expired token')
+    except jwt.DecodeError:
+        raise extensions.exceptions.BadRequestException(
+            message='token is wrong')
+
+
+def forgot_pass(username, email):
+    if (
+            username and len(username) < 50 and
+            email and re.match(r"[^@]+@[^\.]+\..+", email)
+    ):
+        user = repositories.user.find_one_by_email_or_username_in_user(
+            username=username)
+        if user and user.email == email:
+            new_pass = helpers.password.generate_password(8)
+            if mail_service.send_email_update_pass(user, new_pass):
+                repositories.user.update_user(
+                    username=username, password_hash=new_pass)
+                return {
+                    "message": "success"
+                }
+            else:
+                raise BadGateway("Mail server failed")
+
+        raise extensions.exceptions.NotFoundException(
+            "Tên đăng nhập hoặc email bị sai")
+    else:
+        raise extensions.exceptions.BadRequestException(
+            "Dữ liệu truyền lên không phù hợp")
