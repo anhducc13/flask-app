@@ -106,7 +106,7 @@ def logout(token_string):
             message='token is wrong')
 
 
-def reset_pass(token_string, old_password, new_password):
+def change_pass(token_string, old_password, new_password):
     if not token_string:
         raise extensions.exceptions.UnAuthorizedException('need access token')
 

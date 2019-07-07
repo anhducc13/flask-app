@@ -91,7 +91,7 @@ class Logout(Resource):
         return message
 
 
-@ns.route('/reset-password')
+@ns.route('/change-password')
 class ResetPassword(Resource):
     @ns.doc(body=_reset_pass_req, parser=parser)
     def post(self):
