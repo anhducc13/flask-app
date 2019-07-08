@@ -106,7 +106,7 @@ def logout(token_string):
             message='token is wrong')
 
 
-def change_pass(token_string, old_password, new_password):
+def update_pass(token_string, old_password, new_password):
     if not token_string:
         raise extensions.exceptions.UnAuthorizedException('need access token')
 
@@ -127,7 +127,7 @@ def change_pass(token_string, old_password, new_password):
             raise extensions.exceptions.BadRequestException(
                 message='password is not match')
         repositories.user.update_user(
-            username=username, password_hash=new_password)
+            username=username, password=new_password)
         return {
             "message": "update password success"
         }

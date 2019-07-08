@@ -23,36 +23,31 @@ _login_req = ns.model(
     'login_request', model={
         'username': fields.String(required=True, description='user name login'),
         'password': fields.String(required=True, description='password login'),
-    }
-)
+    })
 
 _login_res = ns.model(
     'login_response', model={
         'username': fields.String(required=True, description='user name login'),
         'access_token': fields.String(required=True, description='access token login'),
         'time_expired': fields.Float(required=True, description='time expired login session')
-    }
-)
+    })
 
 _reset_pass_req = ns.model(
     'reset_password_request', model={
         'old_password': fields.String(required=True, description='old password'),
         'new_password': fields.String(required=True, description='new password'),
-    }
-)
+    })
 
 _forgot_pass_req = ns.model(
     'forgor_password_request', model={
         'username': fields.String(required=True, description='username'),
         'email': fields.String(required=True, description='email'),
-    }
-)
+    })
 
 _forgot_pass_res = ns.model(
     'forgor_password_response', model={
         'message': fields.String(required=True, description='message'),
-    }
-)
+    })
 
 
 @ns.route('/register')
@@ -78,6 +73,7 @@ class Login(Resource):
     @ns.marshal_with(_login_res)
     def post(self):
         data = request.json or request.args
+        print(data)
         user = services.auth.login(**data)
         return user
 
@@ -91,13 +87,13 @@ class Logout(Resource):
         return message
 
 
-@ns.route('/change-password')
+@ns.route('/update-password')
 class ResetPassword(Resource):
     @ns.doc(body=_reset_pass_req, parser=parser)
     def post(self):
         auth_header = request.headers.get('Authorization')
         two_pass = request.json or request.args
-        message = services.auth.reset_pass(
+        message = services.auth.update_pass(
             auth_header,
             two_pass['old_password'],
             two_pass['new_password']
