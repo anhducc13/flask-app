@@ -1,7 +1,7 @@
 from flask_restplus import Namespace, Resource, fields
-from flask import request, jsonify
+from flask import request
 
-from ducttapp import models, services, extensions
+from ducttapp import models, services
 
 ns = Namespace('auth', description='Auth operators')
 parser = ns.parser()
@@ -39,13 +39,13 @@ _reset_pass_req = ns.model(
     })
 
 _forgot_pass_req = ns.model(
-    'forgor_password_request', model={
+    'forgot_password_request', model={
         'username': fields.String(required=True, description='username'),
         'email': fields.String(required=True, description='email'),
     })
 
 _forgot_pass_res = ns.model(
-    'forgor_password_response', model={
+    'forgot_password_response', model={
         'message': fields.String(required=True, description='message'),
     })
 

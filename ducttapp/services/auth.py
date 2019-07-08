@@ -1,10 +1,8 @@
 import re
 import jwt
 import config
-import json
-from datetime import datetime, timedelta
-from ducttapp import models
-from ducttapp import repositories, helpers, extensions, models
+from datetime import datetime
+from ducttapp import repositories, helpers, extensions
 from . import mail_service
 from werkzeug.exceptions import BadGateway
 

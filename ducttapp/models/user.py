@@ -4,6 +4,7 @@ from flask_restplus import fields
 import sqlalchemy as _sa
 from sqlalchemy.orm import relationship
 
+
 class User(db.Model):
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
@@ -49,4 +50,18 @@ class User(db.Model):
             'is_active': self.is_active,
             'last_login': self.last_login,
         }
+
+
+class UserSchema:
+    user = {
+        'id': fields.Integer(required=True, description='user id'),
+        'email': fields.String(required=True, description='user email address'),
+        'username': fields.String(required=True, description='user username'),
+        'is_admin': fields.Boolean(required=False, description='user is admin or not'),
+    }
+
+    user_create_req = user.copy()
+    user_create_req.pop('id', None)
+
+
 

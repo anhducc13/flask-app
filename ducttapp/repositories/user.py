@@ -3,11 +3,30 @@ from ducttapp import models
 from ducttapp import repositories
 
 
+def get_all_users():
+    users = models.User.query.all()
+    return users
+
+
+def add_user(**kwargs):
+    user = models.User(**kwargs)
+    models.db.session.add(user)
+    models.db.session.commit()
+    return user
+
+
 def save_user_from_signup_request_to_user(**kwargs):
     user = models.User(**kwargs)
     models.db.session.add(user)
     models.db.session.commit()
     return user
+
+
+def find_one_by_id(user_id):
+    user = models.User.query.filter(
+        models.User.id == user_id
+    ).first()
+    return user or None
 
 
 def find_one_by_email_or_username_in_user(email="", username=""):
@@ -29,6 +48,14 @@ def update_user(username, **kwargs):
 
 def add_session_login(user):
     return repositories.user_token.add_user_token(user)
+
+
+def delete_user_by_id(user_id):
+    user = find_one_by_id(user_id)
+    if user:
+        models.db.session.delete(user)
+        models.db.session.commit()
+    return user or None
 
 
 def delete_one_in_user(user):
