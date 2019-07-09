@@ -18,7 +18,7 @@ def register(username, email, password, **kwargs):
         existed_user_not_verify = repositories.signup.find_one_by_email_or_username_in_signup_request(
             email, username)
         if existed_user or existed_user_not_verify:
-            raise extensions.exceptions.ConflictException(
+            raise extensions.exceptions.BadRequestException(
                 "User with username {username} "
                 "or email {email} already existed!".format(
                     username=username,
@@ -33,11 +33,9 @@ def register(username, email, password, **kwargs):
         )
         if mail_service.send_email_verify(user):
             return user
-        else:
-            raise BadGateway("Mail server failed")
     else:
         raise extensions.exceptions.BadRequestException(
-            "Dữ liệu truyền lên không phù hợp")
+            "Invalid data")
 
 
 def verify(token_string):
@@ -63,6 +61,12 @@ def verify(token_string):
         return "Token bị lỗi"
 
 
+# class CustomException(extensions.exceptions.BadRequestException):
+#     def __str__(self):
+#         code = self.code if self.code is not None else "???"
+#         return self.description
+
+
 def login(username, password):
     if (
             username and len(username) < 50 and
@@ -79,11 +83,11 @@ def login(username, password):
                 "username": user.username,
                 "time_expired": datetime.timestamp(user_token.expired_time)
             }
-        raise extensions.exceptions.NotFoundException(
-            "Tài khoản hoặc mật khẩu bị sai")
+        raise extensions.exceptions.BadRequestException(
+            message="Username or password wrong")
     else:
         raise extensions.exceptions.BadRequestException(
-            "Dữ liệu truyền lên không phù hợp")
+            "Invalid data")
 
 
 def logout(token_string):
@@ -149,7 +153,7 @@ def forgot_pass(username, email):
             new_pass = helpers.password.generate_password(8)
             if mail_service.send_email_update_pass(user, new_pass):
                 repositories.user.update_user(
-                    username=username, password_hash=new_pass)
+                    username=username, password=new_pass)
                 return {
                     "message": "success"
                 }

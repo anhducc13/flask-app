@@ -39,7 +39,7 @@ class UserList(Resource):
         q = args.get('q') or ''
         _sort = args.get('_sort') or 'username'
         _order = 'DESC' if args.get('_order') == 'DESC' else 'ASC'
-        users = services.admin.get_all_users()
+        users = services.admin.get_all_users(_page, _limit, q, _sort, _order)
         return users
 
 

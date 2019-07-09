@@ -21,7 +21,6 @@ def create_app():
     load_app_config(app)
     api.init_app(app)
     models.init_app(app)
-    services.init_app(app)
     return app
 
 

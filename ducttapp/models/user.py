@@ -1,7 +1,6 @@
 from ducttapp.models import db, bcrypt
 from datetime import datetime, timedelta
 from flask_restplus import fields
-import sqlalchemy as _sa
 from sqlalchemy.orm import relationship
 
 

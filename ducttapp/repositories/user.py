@@ -3,8 +3,13 @@ from ducttapp import models
 from ducttapp import repositories
 
 
-def get_all_users():
-    users = models.User.query.all()
+def get_all_users(_page, _limit, q, _sort, _order):
+    users = models.User.query\
+        .filter(models.User.username.like('%{}%'.format(q)))\
+        .order_by(models.User.username.desc())\
+        .limit(_page)\
+        .offset((_page - 1) * _limit)\
+        .all()
     return users
 
 

@@ -8,8 +8,14 @@ def get_one_user(user_id):
     raise extensions.exceptions.NotFoundException('User Not Found')
 
 
-def get_all_users():
-    users = repositories.user.get_all_users()
+def get_all_users(_page, _limit, q, _sort, _order):
+    try:
+        int(_page)
+        int(_limit)
+    except:
+        raise extensions.exceptions.BadRequestException('Invalid data')
+
+    users = repositories.user.get_all_users(int(_page), int(_limit), q, _sort, _order)
     return users
 
 
