@@ -70,12 +70,11 @@ class Verify(Resource):
 @ns.route('/login')
 class Login(Resource):
     @ns.expect(_login_req, validate=True)
-    @ns.marshal_with(_login_res)
     def post(self):
         data = request.json or request.args
         print(data)
-        user = services.auth.login(**data)
-        return user
+        result = services.auth.login(**data)
+        return result
 
 
 @ns.route('/logout')

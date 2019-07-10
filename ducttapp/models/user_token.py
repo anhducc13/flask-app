@@ -1,7 +1,6 @@
 from ducttapp.models import db
-from datetime import datetime, timedelta
-from flask_restplus import fields
-from sqlalchemy.orm import relationship
+from datetime import datetime
+
 
 class User_Token(db.Model):
     def __init__(self, **kwargs):

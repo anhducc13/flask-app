@@ -9,9 +9,9 @@ from werkzeug.exceptions import BadGateway
 
 def register(username, email, password, **kwargs):
     if (
-            username and len(username) < 50 and
-            email and re.match(r"[^@]+@[^\.]+\..+", email) and
-            password and re.match(r"^[A-Za-z0-9]{6,}$", password)
+            username and re.match(r"(?!^[0-9]*$)(?!^[a-zA-Z]*$)^([a-zA-Z0-9]{6,20})$", username) and
+            email and re.match(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$", email) and
+            password and re.match(r"(?!^[0-9]*$)(?!^[a-zA-Z]*$)^([a-zA-Z0-9]{6,20})$", password)
     ):
         existed_user = repositories.user.find_one_by_email_or_username_in_user(
             email, username)
@@ -69,8 +69,8 @@ def verify(token_string):
 
 def login(username, password):
     if (
-            username and len(username) < 50 and
-            password and re.match(r"^[A-Za-z0-9]{6,}$", password)
+            username and re.match(r"(?!^[0-9]*$)(?!^[a-zA-Z]*$)^([a-zA-Z0-9]{6,20})$", username) and
+            password and re.match(r"(?!^[0-9]*$)(?!^[a-zA-Z]*$)^([a-zA-Z0-9]{6,20})$", password)
     ):
         user = repositories.user.find_one_by_email_or_username_in_user(
             username=username)
@@ -79,9 +79,13 @@ def login(username, password):
             repositories.user.update_user(
                 username=username, last_login=user_token.created_at)
             return {
-                "access_token": user_token.token,
-                "username": user.username,
-                "time_expired": datetime.timestamp(user_token.expired_time)
+                "code": 200,
+                "success": True,
+                "data": {
+                    "access_token": user_token.token,
+                    "username": user.username,
+                    "time_expired": datetime.timestamp(user_token.expired_time)
+                }
             }
         raise extensions.exceptions.BadRequestException(
             message="Username or password wrong")
