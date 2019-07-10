@@ -20,7 +20,6 @@ def send_email_verify(user):
         msg.attach(MIMEText(msg_content, 'html'))
         server.sendmail(config.MAIL_USERNAME, user.email, msg.as_string())
         server.quit()
-        return True
     except SMTPException:
         raise SMTPException()
 
@@ -39,6 +38,5 @@ def send_email_update_pass(user, new_pass):
         msg.attach(MIMEText(msg_content, 'html'))
         server.sendmail(config.MAIL_USERNAME, user.email, msg.as_string())
         server.quit()
-        return True
     except SMTPException:
         raise SMTPException()
