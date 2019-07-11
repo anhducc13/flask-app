@@ -36,7 +36,7 @@ def register(username, email, password, **kwargs):
         return user
     else:
         raise extensions.exceptions.BadRequestException(
-            "Tên đăng nhập, email hoặc mật khẩu sai cú pháp")
+            message="Tên đăng nhập, email hoặc mật khẩu sai cú pháp")
 
 
 def verify(token_string):
@@ -57,11 +57,14 @@ def verify(token_string):
             return {
                 "message": "success"
             }
-        raise extensions.exceptions.NotFoundException('Tài khoản đã được xác thực trước đó')
+        raise extensions.exceptions.NotFoundException(
+            message='Tài khoản đã được xác thực trước đó')
     except jwt.ExpiredSignature:
-        raise extensions.exceptions.BadRequestException("Hết hạn truy cập")
+        raise extensions.exceptions.BadRequestException(
+            message="Hết hạn truy cập")
     except jwt.DecodeError:
-        raise extensions.exceptions.CustomBadRequestException("Access token bị lỗi")
+        raise extensions.exceptions.BadRequestException(
+            message="Access token bị lỗi")
 
 
 def login(username, password):
@@ -72,7 +75,8 @@ def login(username, password):
         user_signup_request = repositories.signup.find_one_by_email_or_username_in_signup_request(
             username=username)
         if user_signup_request:
-            raise extensions.exceptions.BadRequestException('Tài khoản chưa xác thực, vui lòng kiểm tra email')
+            raise extensions.exceptions.BadRequestException(
+                message='Tài khoản chưa xác thực, vui lòng kiểm tra email')
 
         user = repositories.user.find_one_by_email_or_username_in_user(
             username=username)
@@ -104,7 +108,7 @@ def logout(token_string):
     except jwt.ExpiredSignature:
         repositories.user_token.delete_user_token(token_string)
         raise extensions.exceptions.UnAuthorizedException(
-            message='Hết hạn truy cập')
+            message='Hết hạn truy cập, tự động đăng xuất')
     except jwt.DecodeError:
         raise extensions.exceptions.BadRequestException(
             message='Access token bị lỗi')
@@ -125,10 +129,12 @@ def update_pass(token_string, old_password, new_password):
             user = repositories.user.find_one_by_email_or_username_in_user(
                 username=username)
             if not user.check_password(old_password):
-                raise extensions.exceptions.BadRequestException(message="Password không chính xác")
+                raise extensions.exceptions.BadRequestException(
+                    message="Password không chính xác")
 
             if old_password == new_password:
-                raise extensions.exceptions.BadRequestException(message="Mật khẩu cũ và mới không được trùng nhau")
+                raise extensions.exceptions.BadRequestException(
+                    message="Mật khẩu cũ và mới không được trùng nhau")
 
             repositories.user.update_user(
                 username=username, password=new_password)
@@ -171,8 +177,8 @@ def forgot_pass(username, email):
                 "message": "success"
             }
 
-        raise extensions.exceptions.NotFoundException(
-            "Không tìm thấy tên đăng nhập hoặc email")
+        raise extensions.exceptions.BadRequestException(
+            message="Không tìm thấy tên đăng nhập hoặc email")
     else:
         raise extensions.exceptions.BadRequestException(
-            "Tên đăng nhập hoặc mật khẩu sai cú pháp")
+            message="Tên đăng nhập hoặc mật khẩu sai cú pháp")

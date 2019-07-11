@@ -38,7 +38,8 @@ class Signup_Request(db.Model):
         self.user_token_confirm = token_string.decode('UTF-8')
 
     def token_verify_expired(self):
-        return self.expired_time - datetime.timestamp(datetime.now()) > 0
+        print(self.expired_time > datetime.now())
+        return self.expired_time < datetime.now()
 
 
 class SignupSchema:

@@ -77,6 +77,16 @@ class Login(Resource):
         return result
 
 
+@ns.route('/forgotPassword')
+class ForgotPassword(Resource):
+    @ns.expect(_forgot_pass_req, validate=True)
+    @ns.marshal_with(_forgot_pass_res)
+    def post(self):
+        data = request.json or request.args
+        message = services.auth.forgot_pass(**data)
+        return message
+
+
 @ns.route('/logout')
 class Logout(Resource):
     @ns.expect(parser)
@@ -86,8 +96,8 @@ class Logout(Resource):
         return message
 
 
-@ns.route('/update-password')
-class ResetPassword(Resource):
+@ns.route('/updatePassword')
+class UpdatePassword(Resource):
     @ns.doc(body=_reset_pass_req, parser=parser)
     def post(self):
         auth_header = request.headers.get('Authorization')
@@ -100,11 +110,4 @@ class ResetPassword(Resource):
         return message
 
 
-@ns.route('/forgot-password')
-class ForgotPassword(Resource):
-    @ns.expect(_forgot_pass_req, validate=True)
-    @ns.marshal_with(_forgot_pass_res)
-    def post(self):
-        data = request.json or request.args
-        message = services.auth.forgot_pass(**data)
-        return message
+
