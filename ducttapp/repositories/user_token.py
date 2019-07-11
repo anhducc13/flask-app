@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 
 def add_user_token(user):
-    expired_time = datetime.now() + timedelta(minutes=1)
+    expired_time = datetime.now() + timedelta(seconds=20)
     data_token = {
         "username": user.username,
         "exp": datetime.timestamp(expired_time)

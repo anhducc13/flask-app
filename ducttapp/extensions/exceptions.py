@@ -9,6 +9,10 @@ class HTTPException(BaseHTTPException):
         self.code = code
         self.errors = errors
 
+    def __str__(self):
+        code = self.code if self.code is not None else "???"
+        return self.description
+
 
 class BadRequestException(HTTPException):
     def __init__(self, message='Bad Request', errors=None):
@@ -35,15 +39,26 @@ class ConflictException(HTTPException):
         super().__init__(code=409, message=message, errors=errors)
 
 
+class CustomBadRequestException(HTTPException):
+    type_error = None
+
+    def __init__(self, message='Bad Request', errors=None, type_error=None):
+        super().__init__(code=400, message=message, errors=errors)
+        self.type_error = type_error
+
+
 def global_error_handler(e):
     models.db.session.rollback()
     code = 500
     errors = None
+    type_error = None
     if isinstance(e, BaseHTTPException):
         code = e.code
     if isinstance(e, HTTPException):
         errors = e.errors
-    res = wrap_response(None, str(e), code)
+    if isinstance(e, CustomBadRequestException):
+        type_error = e.type_error
+    res = wrap_response(None, str(e), code, type_error)
     if errors:
         res[0]['errors'] = errors
     return res
