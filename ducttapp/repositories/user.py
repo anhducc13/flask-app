@@ -44,11 +44,9 @@ def find_one_by_email_or_username_in_user(email="", username=""):
     return user or None
 
 
-def update_user(username, **kwargs):
-    user = find_one_by_email_or_username_in_user(username=username)
-    if user:
-        user.update_attr(**kwargs)
-        models.db.session.commit()
+def update_user(user, **kwargs):
+    user.update_attr(**kwargs)
+    models.db.session.commit()
 
 
 def add_session_login(user):

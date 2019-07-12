@@ -3,6 +3,8 @@ import config
 import jwt
 from datetime import datetime, timedelta
 from flask_restplus import fields
+import uuid
+
 
 class Signup_Request(db.Model):
     def __init__(self, **kwargs):
@@ -30,15 +32,9 @@ class Signup_Request(db.Model):
             password).decode('utf-8')
 
     def create_token(self):
-        token_data = {
-            "username": self.username,
-            "exp": self.expired_time
-        }
-        token_string = jwt.encode(token_data, config.FLASK_APP_SECRET_KEY)
-        self.user_token_confirm = token_string.decode('UTF-8')
+        self.user_token_confirm = str(uuid.uuid4())
 
     def token_verify_expired(self):
-        print(self.expired_time > datetime.now())
         return self.expired_time < datetime.now()
 
 

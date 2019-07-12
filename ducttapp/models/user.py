@@ -52,15 +52,42 @@ class User(db.Model):
 
 
 class UserSchema:
-    user = {
+    schema_user_create_req = {
+        'email': fields.String(required=True, description='user email address'),
+        'username': fields.String(required=True, description='user username'),
+        'isAdmin': fields.Boolean(required=True, description='Admin or not'),
+    }
+
+    schema_user_create_res = {
         'id': fields.Integer(required=True, description='user id'),
         'email': fields.String(required=True, description='user email address'),
         'username': fields.String(required=True, description='user username'),
-        'is_admin': fields.Boolean(required=False, description='user is admin or not'),
+        'isAdmin': fields.Boolean(required=True, description='Admin or not'),
     }
 
-    user_create_req = user.copy()
-    user_create_req.pop('id', None)
+    schema_login_req = {
+        'username': fields.String(required=True, description='user username'),
+        'password': fields.String(required=True, description='user password')
+    }
+    schema_login_res = {
+        'username': fields.String(required=True, description='user name login'),
+        'accessToken': fields.String(required=True, description='access token login'),
+        'timeExpired': fields.Float(required=True, description='time expired login session'),
+        'isAdmin': fields.Boolean(required=True, description='Admin or not')
+    }
+    schema_update_password_req = {
+        'old_password': fields.String(required=True, description='old password'),
+        'new_password': fields.String(required=True, description='new password'),
+    }
+    schema_forgot_password_req = {
+        'username': fields.String(required=True, description='username'),
+        'email': fields.String(required=True, description='email'),
+    }
+    schema_notify_res = {
+        'ok': fields.Boolean(required=True, description='Task success or not'),
+    }
+
+
 
 
 

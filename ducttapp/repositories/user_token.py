@@ -1,18 +1,20 @@
-from ducttapp import models, helpers
-from . import user
-import config
-import jwt
+from ducttapp import models
+import uuid
 from datetime import datetime, timedelta
+
+
+def find_user_by_token_login(token):
+    user = models.db.session\
+        .query(models.User)\
+        .join(models.User_Token)\
+        .filter(models.User_Token.token == token)\
+        .first()
+    return user or None
 
 
 def add_user_token(user):
     expired_time = datetime.now() + timedelta(minutes=2)
-    data_token = {
-        "username": user.username,
-        "exp": datetime.timestamp(expired_time)
-    }
-    access_token = jwt.encode(
-        data_token, config.FLASK_APP_SECRET_KEY).decode('UTF-8')
+    access_token = str(uuid.uuid4())
     user_token = models.User_Token(
         user_id=user.id,
         token=access_token,
