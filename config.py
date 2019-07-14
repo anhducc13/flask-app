@@ -15,7 +15,6 @@ MYSQL_HOST = os.getenv('MYSQL_HOST')
 MYSQL_USER = os.getenv('MYSQL_USER')
 MYSQL_PORT = os.getenv('MYSQL_PORT')
 MYSQL_PASSWORD = os.getenv('MYSQL_PASSWORD')
-
 MAIL_SERVER = os.getenv('MAIL_SERVER')
 MAIL_PORT = os.getenv('MAIL_PORT')
 MAIL_USERNAME = os.getenv('MAIL_USERNAME')

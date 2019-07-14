@@ -1,6 +1,4 @@
 from ducttapp.models import db, bcrypt
-import config
-import jwt
 from datetime import datetime, timedelta
 from flask_restplus import fields
 import uuid
@@ -11,7 +9,6 @@ class Signup_Request(db.Model):
         for k, v in kwargs.items():
             setattr(self, k, v)
         self.expired_time = (datetime.now() + timedelta(minutes=30))
-        self.create_token()
 
     __tablename__ = 'signup_request'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -31,11 +28,14 @@ class Signup_Request(db.Model):
         self.password_hash = bcrypt.generate_password_hash(
             password).decode('utf-8')
 
-    def create_token(self):
-        self.user_token_confirm = str(uuid.uuid4())
-
     def token_verify_expired(self):
         return self.expired_time < datetime.now()
+
+    def to_dict(self):
+        return {
+            "username": self.username,
+            "email": self.email
+        }
 
 
 class SignupSchema:

@@ -28,17 +28,19 @@ def send_email(_subject, _from, _to, _message_content):
         msg = config_message_mail_before_send(_subject, _from, _to, _message_content)
         server.sendmail(_from, _to, msg.as_string())
         server.quit()
-    except SMTPException:
-        raise SMTPException()
+    except SMTPException as e:
+        return {
+                   "message": e.strerror
+               }, 500
 
 
-def send_email_verify(user):
+def send_email_verify(email, token_verify):
     msg_content = '<a href="{0}/{1}/{2}">Click here</b>'.format(config.BASE_URL, 'api/auth/verify',
-                                                                user.user_token_confirm)
+                                                                token_verify)
     send_email(
         _subject='Verify account',
         _from=config.MAIL_USERNAME,
-        _to=user.email,
+        _to=email,
         _message_content=msg_content
     )
 

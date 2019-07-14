@@ -42,7 +42,6 @@ parser.add_argument(
 @ns.route('/register')
 class Register(Resource):
     @ns.expect(_signup_request_req, validate=True)
-    @ns.marshal_with(_signup_request_res)
     def post(self):
         data = request.json or request.args
         user = services.auth.register(**data)
@@ -69,7 +68,6 @@ class Login(Resource):
 @ns.route('/forgotPassword')
 class ForgotPassword(Resource):
     @ns.expect(_forgot_pass_req, validate=True)
-    @ns.marshal_with(_forgot_pass_res)
     def post(self):
         data = request.json or request.args
         message = services.auth.forgot_pass(**data)
