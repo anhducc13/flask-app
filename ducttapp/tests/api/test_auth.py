@@ -1,6 +1,7 @@
 # coding=utf-8
 import json
 import uuid
+from unittest.mock import patch
 
 from ducttapp import models as m, repositories as r, helpers as h
 from ducttapp.tests.api import APITestCase
@@ -228,3 +229,106 @@ class LoginApiTestCase(APITestCase):
         self.assertEqual(400, rv.status_code)
         res_data = json.loads(rv.data)
         self.assertEqual(res_data['message'], 'Tên đăng nhập hoặc mật khẩu sai cú pháp')
+
+    def test_login_user_when_fail_because_wrong_username_or_password(self):
+        # Thêm dữ liệu vào database - bảng user
+        password = h.password.generate_password(8)
+        valid_data = {
+            'username': 'anhducc14',
+            'email': 'cvictory00@gmail.com',
+            'password': password
+        }
+        r.user.add_user(**valid_data)
+
+        wrong_user1 = {
+            'username': 'anhducc14',
+            'password': password + 'x'
+        }
+        rv1 = self.send_request(data=wrong_user1)
+
+        self.assertEqual(400, rv1.status_code)
+        res_data1 = json.loads(rv1.data)
+        self.assertEqual(res_data1['message'], 'Sai tên đăng nhập hoặc mật khẩu')
+
+        wrong_user2 = {
+            'username': 'anhducc15',
+            'password': password
+        }
+        rv2 = self.send_request(data=wrong_user2)
+
+        self.assertEqual(400, rv2.status_code)
+        res_data2 = json.loads(rv2.data)
+        self.assertEqual(res_data2['message'], 'Sai tên đăng nhập hoặc mật khẩu')
+
+    def test_login_user_when_fail_because_not_verify(self):
+        # Thêm dữ liệu vào database - bảng signup request
+        password = h.password.generate_password(8)
+        valid_data = {
+            'username': 'anhducc14',
+            'email': 'cvictory00@gmail.com',
+            'password': password,
+            'user_token_confirm': str(uuid.uuid4())
+        }
+        r.signup.save_user_to_signup_request(**valid_data)
+
+        valid_user_but_not_verify = {
+            'username': 'anhducc14',
+            'password': password
+        }
+        rv = self.send_request(data=valid_user_but_not_verify)
+
+        self.assertEqual(403, rv.status_code)
+        res_data = json.loads(rv.data)
+        self.assertEqual(res_data['message'], 'Tài khoản chưa được xác thực, vui lòng kiểm tra email')
+
+
+class ForgotPasswordApiTestCase(APITestCase):
+    def url(self):
+        return '/api/auth/forgotPassword'
+
+    def method(self):
+        return 'POST'
+
+    @patch('ducttapp.services.mail_service.send_email_update_pass')
+    def test_forgot_password_success(self, mock_send_email_update_pass):
+        # Thêm dữ liệu vào database - bảng user
+        password = h.password.generate_password(8)
+        valid_data = {
+            'username': 'anhducc14',
+            'email': 'cvictory00@gmail.com',
+            'password': password
+        }
+        r.user.add_user(**valid_data)
+
+        req = {
+            'username': valid_data['username'],
+            'email': valid_data['email'],
+        }
+
+        rv = self.send_request(data=req)
+        mock_send_email_update_pass.assert_called_once()
+        self.assertEqual(200, rv.status_code)
+        res_data = json.loads(rv.data)
+        self.assertEqual(res_data['ok'], True)
+
+    @patch('ducttapp.services.mail_service.send_email_update_pass')
+    def test_forgot_password_fail_because_user_not_exist(self, mock_send_email_update_pass):
+        # Thêm dữ liệu vào database - bảng user
+        password = h.password.generate_password(8)
+        valid_data = {
+            'username': 'anhducc14',
+            'email': 'cvictory00@gmail.com',
+            'password': password
+        }
+        r.user.add_user(**valid_data)
+
+        req = {
+            'username': 'anhducc15',
+            'email': valid_data['email'],
+        }
+
+        rv = self.send_request(data=req)
+        mock_send_email_update_pass.assert_not_called()
+        self.assertEqual(400, rv.status_code)
+        res_data = json.loads(rv.data)
+        self.assertEqual(res_data['message'], 'Không tìm thấy tên đăng nhập hoặc email')

@@ -148,6 +148,7 @@ def forgot_pass(username, email):
         return {
                    "message": "Tên đăng nhập hoặc email sai cú pháp"
                }, 400
+
     check_user_not_verify_by_email_or_username(
         username=username,
         email=email
@@ -181,7 +182,4 @@ def check_user_not_verify_by_email_or_username(username='', email=''):
             existed_user_not_verify and
             not existed_user_not_verify.token_verify_expired()
     ):
-        return {
-                   "message": "Tài khoản chưa được xác thực, vui lòng kiểm tra email"
-               }, 403
-    pass
+        raise extensions.exceptions.ForbiddenException('Tài khoản chưa được xác thực, vui lòng kiểm tra email')
