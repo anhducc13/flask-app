@@ -43,10 +43,6 @@ def register(username, email, password, **kwargs):
 
 
 def verify(token_string):
-    if not token_string:
-        return {
-                   "message": "Cần access token"
-               }, 400
     if not helpers.validators.valid_uuid(token_string):
         return {
                    "message": "Access token không hợp lệ"
@@ -101,11 +97,6 @@ def login(username, password):
 
 
 def logout(token_string):
-    if not token_string:
-        return {
-                   "message": "Yêu cầu access token"
-               }, 400
-
     if not helpers.validators.valid_uuid(token_string):
         return {
                    "message": "Access token không hợp lệ"
@@ -117,11 +108,6 @@ def logout(token_string):
 
 
 def update_pass(token_string, old_password, new_password):
-    if not token_string:
-        return {
-                   "message": "Yêu cầu access token"
-               }, 400
-
     if not helpers.validators.valid_uuid(token_string):
         return {
                    "message": "Access token không hợp lệ"

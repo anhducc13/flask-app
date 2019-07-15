@@ -115,17 +115,116 @@ class VerifyApiTestCase(APITestCase):
         res_data = json.loads(rv.data)
         self.assertEqual(res_data['ok'], True)
 
-    # def test_verify_user_when_fail(self):
-    #     valid_data = {
-    #         'username': 'anhducc13',
-    #         'email': 'cvictory00@gmail.com',
-    #         'password': 'Anhducc13',
-    #     }
-    #     user_not_verify = r.signup.save_user_to_signup_request(**valid_data)
-    #
-    #     url_verify = '{0}/{1}'.format(self.url(), '')
-    #     rv = self.send_request(url=url_verify)
-    #
-    #     self.assertEqual(400, rv.status_code)
-    #     res_data = json.loads(rv.data)
-    #     self.assertEqual(res_data['message'], 'Cần access token')
+    def test_verify_user_when_success_then_add_to_table_user(self):
+        valid_data = {
+            'username': 'anhducc13',
+            'email': 'cvictory00@gmail.com',
+            'password': 'Anhducc13',
+            'user_token_confirm': str(uuid.uuid4())
+        }
+        user_not_verify = r.signup.save_user_to_signup_request(**valid_data)
+
+        url_verify = '{0}/{1}'.format(self.url(), user_not_verify.user_token_confirm)
+        rv = self.send_request(url=url_verify)
+
+        saved_user = m.User.query.filter(m.User.username == 'anhducc13').first()
+        assert saved_user
+        self.assertEqual(saved_user.username, valid_data['username'])
+        self.assertEqual(saved_user.email, valid_data['email'])
+        self.assertEqual(saved_user.check_password(valid_data['password']), True)
+
+    def test_verify_user_when_fail_test_case_1(self):
+        valid_data = {
+            'username': 'anhducc13',
+            'email': 'cvictory00@gmail.com',
+            'password': 'Anhducc13',
+            'user_token_confirm': str(uuid.uuid4())
+        }
+        user_not_verify = r.signup.save_user_to_signup_request(**valid_data)
+
+        url_verify = '{0}'.format(self.url())
+        print(url_verify)
+        rv = self.send_request(url=url_verify)
+        self.assertEqual(404, rv.status_code)
+
+    def test_verify_user_when_fail_test_case_2(self):
+        valid_data = {
+            'username': 'anhducc13',
+            'email': 'cvictory00@gmail.com',
+            'password': 'Anhducc13',
+            'user_token_confirm': str(uuid.uuid4())
+        }
+        user_not_verify = r.signup.save_user_to_signup_request(**valid_data)
+
+        url_verify = '{0}/{1}'.format(self.url(), user_not_verify.user_token_confirm + 'm')
+        rv = self.send_request(url=url_verify)
+
+        self.assertEqual(400, rv.status_code)
+        res_data = json.loads(rv.data)
+        self.assertEqual(res_data['message'], 'Access token không hợp lệ')
+
+    def test_verify_user_when_fail_test_case_3(self):
+        valid_data = {
+            'username': 'anhducc13',
+            'email': 'cvictory00@gmail.com',
+            'password': 'Anhducc13',
+            'user_token_confirm': str(uuid.uuid4())
+        }
+        user_not_verify = r.signup.save_user_to_signup_request(**valid_data)
+
+        url_verify = '{0}/{1}'.format(self.url(), str(uuid.uuid4()))
+        rv = self.send_request(url=url_verify)
+
+        self.assertEqual(400, rv.status_code)
+        res_data = json.loads(rv.data)
+        self.assertEqual(res_data['message'], 'Không tìm thấy tài khoản xác thực, vui lòng kiểm tra lại')
+
+
+class LoginApiTestCase(APITestCase):
+    def url(self):
+        return '/api/auth/login'
+
+    def method(self):
+        return 'POST'
+
+    def test_login_user_when_success(self):
+        # Thêm dữ liệu vào database - bảng user
+        password = h.password.generate_password(8)
+        valid_data = {
+            'username': 'anhducc14',
+            'email': 'cvictory00@gmail.com',
+            'password': password
+        }
+        r.user.add_user(**valid_data)
+
+        req = {
+            'username': 'anhducc14',
+            'password': password
+        }
+        rv = self.send_request(data=req)
+
+        self.assertEqual(200, rv.status_code)
+        res_data = json.loads(rv.data)
+        self.assertEqual(res_data['username'], valid_data['username'])
+        self.assertIsNotNone(res_data['timeExpired'])
+        self.assertIsNotNone(res_data['accessToken'])
+
+    def test_login_user_when_fail_because_invalid_request(self):
+        # Thêm dữ liệu vào database - bảng user
+        password = h.password.generate_password(8)
+        valid_data = {
+            'username': 'anhducc14',
+            'email': 'cvictory00@gmail.com',
+            'password': password
+        }
+        r.user.add_user(**valid_data)
+
+        invalid_req = {
+            'username': 'anhducc',
+            'password': ''
+        }
+        rv = self.send_request(data=invalid_req)
+
+        self.assertEqual(400, rv.status_code)
+        res_data = json.loads(rv.data)
+        self.assertEqual(res_data['message'], 'Tên đăng nhập hoặc mật khẩu sai cú pháp')
