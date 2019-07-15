@@ -1,7 +1,8 @@
 # coding=utf-8
 import json
+import uuid
 
-from ducttapp import models as m, repositories as r
+from ducttapp import models as m, repositories as r, helpers as h
 from ducttapp.tests.api import APITestCase
 
 
@@ -15,12 +16,12 @@ class RegisterApiTestCase(APITestCase):
     def test_create_user_when_success_then_insert_user_into_db(self):
         valid_data = {
             'username': 'anhducc13',
-            'email': 'trantienduc10@gmail.com',
+            'email': 'zolon@mail-point.net',
             'password': 'Anhducc13',
         }
 
         self.send_request(data=valid_data)
-        saved_user = m.Signup_Request.query.filter(m.Signup_Request.username == 'anhducc13').first()  # type: m.User
+        saved_user = m.Signup_Request.query.filter(m.Signup_Request.username == 'anhducc13').first()
 
         assert saved_user
         self.assertEqual(saved_user.username, valid_data['username'])
@@ -49,16 +50,46 @@ class RegisterApiTestCase(APITestCase):
         res_data = json.loads(rv.data)
         self.assertEqual(res_data['message'], 'Tên đăng nhập, email hoặc mật khẩu sai cú pháp')
 
-    # def test_create_user_when_exist_user_then_return_error_message(self):
-    #     invalid_data = {
-    #         'username': 'anhducc14',
-    #         'email': 'cvictory00@gmail.com',
-    #         'password': 'Anhducc14',
-    #     }
-    #     rv = self.send_request(data=invalid_data)
-    #     self.assertEqual(400, rv.status_code)
-    #     res_data = json.loads(rv.data)
-    #     self.assertEqual(res_data['message'], 'Tên đăng nhập hoặc email đã tồn tại')
+    def test_create_user_when_exist_user_in_signup_request_then_return_error_message(self):
+        # Thêm dữ liệu vào database - bảng signup request
+        valid_data = {
+            'username': 'anhducc14',
+            'email': 'cvictory00@gmail.com',
+            'password': 'Anhducc13',
+            'user_token_confirm': str(uuid.uuid4())
+        }
+        user_not_verify = r.signup.save_user_to_signup_request(**valid_data)
+
+        # Đăng ký với dữ liệu tài khoản bị trùng
+        invalid_data = {
+            'username': 'anhducc14',
+            'email': 'cvictory00@gmail.com',
+            'password': 'Anhducc14',
+        }
+        rv = self.send_request(data=invalid_data)
+        self.assertEqual(400, rv.status_code)
+        res_data = json.loads(rv.data)
+        self.assertEqual(res_data['message'], 'Tên đăng nhập hoặc email đã tồn tại')
+
+    def test_create_user_when_exist_user_in_user_then_return_error_message(self):
+        # Thêm dữ liệu vào database - bảng user
+        valid_data = {
+            'username': 'anhducc14',
+            'email': 'cvictory00@gmail.com',
+            'password': h.password.generate_password(8)
+        }
+        user= r.user.add_user(**valid_data)
+
+        # Đăng ký với dữ liệu tài khoản bị trùng
+        invalid_data = {
+            'username': 'anhducc14',
+            'email': 'cvictory00@gmail.com',
+            'password': 'Anhducc14',
+        }
+        rv = self.send_request(data=invalid_data)
+        self.assertEqual(400, rv.status_code)
+        res_data = json.loads(rv.data)
+        self.assertEqual(res_data['message'], 'Tên đăng nhập hoặc email đã tồn tại')
 
 
 class VerifyApiTestCase(APITestCase):
@@ -73,6 +104,7 @@ class VerifyApiTestCase(APITestCase):
             'username': 'anhducc13',
             'email': 'cvictory00@gmail.com',
             'password': 'Anhducc13',
+            'user_token_confirm': str(uuid.uuid4())
         }
         user_not_verify = r.signup.save_user_to_signup_request(**valid_data)
 
@@ -83,18 +115,17 @@ class VerifyApiTestCase(APITestCase):
         res_data = json.loads(rv.data)
         self.assertEqual(res_data['ok'], True)
 
-    def test_verify_user_when_fail(self):
-        valid_data = {
-            'username': 'anhducc13',
-            'email': 'cvictory00@gmail.com',
-            'password': 'Anhducc13',
-        }
-        user_not_verify = r.signup.save_user_to_signup_request(**valid_data)
-
-        url_verify = '{0}/{1}'.format(self.url(), '')
-        rv = self.send_request(url=url_verify)
-
-        self.assertEqual(400, rv.status_code)
-        res_data = json.loads(rv.data)
-        self.assertEqual(res_data['message'], 'Cần access token')
-
+    # def test_verify_user_when_fail(self):
+    #     valid_data = {
+    #         'username': 'anhducc13',
+    #         'email': 'cvictory00@gmail.com',
+    #         'password': 'Anhducc13',
+    #     }
+    #     user_not_verify = r.signup.save_user_to_signup_request(**valid_data)
+    #
+    #     url_verify = '{0}/{1}'.format(self.url(), '')
+    #     rv = self.send_request(url=url_verify)
+    #
+    #     self.assertEqual(400, rv.status_code)
+    #     res_data = json.loads(rv.data)
+    #     self.assertEqual(res_data['message'], 'Cần access token')

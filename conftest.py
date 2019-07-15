@@ -20,6 +20,7 @@ def app(request):
         db.session.remove()
         db.drop_all()
         ctx.pop()
+        pass
 
     request.addfinalizer(teardown)
     return app
