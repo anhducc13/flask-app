@@ -28,16 +28,16 @@ def register(username, email, password, **kwargs):
                }, 400
 
     token_verify = str(uuid.uuid4())
-    mail_service.send_email_verify(
-        email=email,
-        token_verify=token_verify
-    )
     user = repositories.signup.save_user_to_signup_request(
         username=username,
         email=email,
         password=password,
         user_token_confirm=token_verify,
         **kwargs
+    )
+    mail_service.send_email_verify(
+        email=email,
+        token_verify=token_verify
     )
     return user.to_dict(), 201
 
@@ -162,13 +162,13 @@ def forgot_pass(username, email):
                }, 400
 
     new_pass = helpers.password.generate_password(8)
-    mail_service.send_email_update_pass(
-        user=user,
-        new_pass=new_pass
-    )
     repositories.user.update_user(
         user=user,
         password=new_pass
+    )
+    mail_service.send_email_update_pass(
+        user=user,
+        new_pass=new_pass
     )
     return {
                "ok": True
