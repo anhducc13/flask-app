@@ -2,7 +2,7 @@ from ducttapp.models import db, bcrypt
 from datetime import datetime, timedelta
 from flask_restplus import fields
 from sqlalchemy.orm import relationship
-
+from ducttapp import helpers
 
 class User(db.Model):
     def __init__(self, **kwargs):
@@ -19,6 +19,7 @@ class User(db.Model):
     is_admin = db.Column(db.Boolean, default=False)
     is_active = db.Column(db.Boolean, default=True)
     last_login = db.Column(db.TIMESTAMP, nullable=True)
+    history_pass_change = relationship("HistoryPassChange")
 
     @property
     def password(self):
@@ -35,6 +36,7 @@ class User(db.Model):
     def update_attr(self, **kwargs):
         for k, v in kwargs.items():
             setattr(self, k, v)
+        self.updated_at = datetime.now()
 
     def update_last_login(self):
         self.last_login = datetime.now()
@@ -65,8 +67,16 @@ class UserSchema:
     }
 
     schema_login_req = {
-        'username': fields.String(required=True, description='user username'),
-        'password': fields.String(required=True, description='user password')
+        'username': fields.String(
+            required=True,
+            description='user username',
+            pattern=helpers.validators.REGEX_USERNAME
+        ),
+        'password': fields.String(
+            required=True,
+            description='user password',
+            pattern=helpers.validators.REGEX_PASSWORD
+        )
     }
     schema_login_res = {
         'username': fields.String(required=True, description='user name login'),
@@ -75,12 +85,28 @@ class UserSchema:
         'isAdmin': fields.Boolean(required=True, description='Admin or not')
     }
     schema_update_password_req = {
-        'old_password': fields.String(required=True, description='old password'),
-        'new_password': fields.String(required=True, description='new password'),
+        'old_password': fields.String(
+            required=True,
+            description='user old password',
+            pattern=helpers.validators.REGEX_PASSWORD
+        ),
+        'new_password': fields.String(
+            required=True,
+            description='user new password',
+            pattern=helpers.validators.REGEX_PASSWORD
+        ),
     }
     schema_forgot_password_req = {
-        'username': fields.String(required=True, description='username'),
-        'email': fields.String(required=True, description='email'),
+        'username': fields.String(
+            required=True,
+            description='user username',
+            pattern=helpers.validators.REGEX_USERNAME
+        ),
+        'email': fields.String(
+            required=True,
+            description='user email',
+            pattern=helpers.validators.REGEX_EMAIL
+        ),
     }
     schema_notify_res = {
         'ok': fields.Boolean(required=True, description='Task success or not'),

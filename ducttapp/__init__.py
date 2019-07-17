@@ -20,6 +20,9 @@ def create_app():
 
     load_app_config(app)
     app.config['JWT_SECRET_KEY'] = config.FLASK_APP_SECRET_KEY
+    app.config['JWT_BLACKLIST_ENABLED'] = True
+    app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
+    app.config['JWT_ERROR_MESSAGE_KEY'] = 'message'
     api.init_app(app)
     models.init_app(app)
     return app

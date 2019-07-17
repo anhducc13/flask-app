@@ -1,7 +1,7 @@
 from ducttapp.models import db, bcrypt
 from datetime import datetime, timedelta
 from flask_restplus import fields
-import uuid
+from ducttapp import helpers
 
 
 class Signup_Request(db.Model):
@@ -40,9 +40,21 @@ class Signup_Request(db.Model):
 
 class SignupSchema:
     signup_request_req = {
-        'email': fields.String(required=True, description='user email address'),
-        'username': fields.String(required=True, description='user username'),
-        'password': fields.String(required=True, description='user password')
+        'email': fields.String(
+            required=True,
+            description='user email',
+            pattern=helpers.validators.REGEX_EMAIL
+        ),
+        'username': fields.String(
+            required=True,
+            description='user username',
+            pattern=helpers.validators.REGEX_USERNAME
+        ),
+        'password': fields.String(
+            required=True,
+            description='user password',
+            pattern=helpers.validators.REGEX_PASSWORD
+        )
     }
     signup_request_res = {
         'email': fields.String(required=True, description='user email address'),

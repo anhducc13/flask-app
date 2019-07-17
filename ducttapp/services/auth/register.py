@@ -5,14 +5,6 @@ from flask_jwt_extended import create_access_token
 
 
 def register(username, email, password, **kwargs):
-    if (
-            not (username and helpers.validators.valid_username(username) and
-                 email and helpers.validators.valid_email(email) and
-                 password and helpers.validators.valid_password(password))
-    ):
-        return {
-                   "msg": "Tên đăng nhập, email hoặc mật khẩu sai cú pháp"
-               }, 400
     existed_user_not_verify = repositories.signup.find_one_by_email_or_username_in_signup_request(
         username=username,
         email=email
@@ -24,7 +16,7 @@ def register(username, email, password, **kwargs):
     )
     if existed_user or existed_user_not_verify:
         return {
-                   "msg": "Tên đăng nhập hoặc email đã tồn tại"
+                   "message": "Tên đăng nhập hoặc email đã tồn tại"
                }, 400
 
     token_verify = create_access_token(
