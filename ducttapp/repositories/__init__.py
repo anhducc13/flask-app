@@ -1,3 +1,3 @@
 from . import signup
 from . import user
-from . import user_token
+from . import revoked_token

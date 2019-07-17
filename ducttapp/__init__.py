@@ -17,8 +17,9 @@ def create_app():
         instance_path=os.path.join(config.ROOT_DIR, 'instance')
     )
     CORS(app)
-    app.secret_key = config.FLASK_APP_SECRET_KEY
+
     load_app_config(app)
+    app.config['JWT_SECRET_KEY'] = config.FLASK_APP_SECRET_KEY
     api.init_app(app)
     models.init_app(app)
     return app

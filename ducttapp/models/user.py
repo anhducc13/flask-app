@@ -19,7 +19,6 @@ class User(db.Model):
     is_admin = db.Column(db.Boolean, default=False)
     is_active = db.Column(db.Boolean, default=True)
     last_login = db.Column(db.TIMESTAMP, nullable=True)
-    user_token = relationship("User_Token")
 
     @property
     def password(self):

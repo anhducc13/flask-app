@@ -1,18 +1,35 @@
 from flask import Blueprint
 from flask_restplus import Api
+from flask_jwt_extended import JWTManager
 from .auth import ns as auth_ns
 from .admin import ns as admin_ns
 from ducttapp.extensions.exceptions import global_error_handler
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
 
+authorizations = {
+    'apiKey': {
+        'type': 'apiKey',
+        'in': 'header',
+        'name': 'Authorization'
+    }
+}
+
+jwt = JWTManager()
+
 api = Api(
     app=api_bp,
     version='1.0',
     title='Ductt API',
     validate=False,
+    authorizations=authorizations,
+    security='apiKey',
     # doc='' # disable Swagger UI
 )
+
+
+jwt._set_error_handler_callbacks(api)
+
 
 def init_app(app, **kwargs):
     """
@@ -24,3 +41,4 @@ def init_app(app, **kwargs):
     api.add_namespace(admin_ns)
     app.register_blueprint(api_bp)
     api.error_handlers[Exception] = global_error_handler
+    jwt.init_app(app)

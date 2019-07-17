@@ -1,6 +1,7 @@
 # coding=utf-8
 import json
-import uuid
+from flask_jwt_extended import create_access_token
+from datetime import timedelta
 from unittest.mock import patch
 
 from ducttapp import models as m, repositories as r, helpers as h
@@ -46,14 +47,18 @@ class RegisterApiTestCase(APITestCase):
         rv = self.send_request(data=invalid_data)
         self.assertEqual(400, rv.status_code)
         res_data = json.loads(rv.data)
-        self.assertEqual(res_data['message'], 'Tên đăng nhập, email hoặc mật khẩu sai cú pháp')
+        self.assertEqual(res_data['msg'], 'Tên đăng nhập, email hoặc mật khẩu sai cú pháp')
 
     def test_create_user_when_exist_user_in_signup_request_then_return_error_message(self):
         # Thêm dữ liệu vào database - bảng signup request
         global valid_data
         user_info = valid_data.copy()
+        token_confirm = create_access_token(
+            identity=valid_data['username'],
+            expires_delta=timedelta(minutes=30)
+        )
         user_info.update({
-            'user_token_confirm': str(uuid.uuid4())
+            'user_token_confirm': token_confirm
         })
         r.signup.save_user_to_signup_request(**user_info)
 
@@ -62,7 +67,7 @@ class RegisterApiTestCase(APITestCase):
         rv = self.send_request(data=invalid_data)
         self.assertEqual(400, rv.status_code)
         res_data = json.loads(rv.data)
-        self.assertEqual(res_data['message'], 'Tên đăng nhập hoặc email đã tồn tại')
+        self.assertEqual(res_data['msg'], 'Tên đăng nhập hoặc email đã tồn tại')
 
     def test_create_user_when_exist_user_in_user_then_return_error_message(self):
         # Thêm dữ liệu vào database - bảng user
@@ -78,7 +83,7 @@ class RegisterApiTestCase(APITestCase):
         rv = self.send_request(data=invalid_data)
         self.assertEqual(400, rv.status_code)
         res_data = json.loads(rv.data)
-        self.assertEqual(res_data['message'], 'Tên đăng nhập hoặc email đã tồn tại')
+        self.assertEqual(res_data['msg'], 'Tên đăng nhập hoặc email đã tồn tại')
 
 
 class VerifyApiTestCase(APITestCase):
@@ -92,8 +97,12 @@ class VerifyApiTestCase(APITestCase):
         # Thêm dữ liệu vào database - bảng signup request
         global valid_data
         user_info = valid_data.copy()
+        token_confirm = create_access_token(
+            identity=valid_data['username'],
+            expires_delta=timedelta(minutes=30)
+        )
         user_info.update({
-            'user_token_confirm': str(uuid.uuid4())
+            'user_token_confirm': token_confirm
         })
         user_not_verify = r.signup.save_user_to_signup_request(**user_info)
 
@@ -107,8 +116,12 @@ class VerifyApiTestCase(APITestCase):
     def test_verify_user_when_success_then_add_to_table_user(self):
         global valid_data
         user_info = valid_data.copy()
+        token_confirm = create_access_token(
+            identity=valid_data['username'],
+            expires_delta=timedelta(minutes=30)
+        )
         user_info.update({
-            'user_token_confirm': str(uuid.uuid4())
+            'user_token_confirm': token_confirm
         })
         user_not_verify = r.signup.save_user_to_signup_request(**user_info)
 
@@ -125,8 +138,12 @@ class VerifyApiTestCase(APITestCase):
     def test_verify_user_when_fail_test_case_1(self):
         global valid_data
         user_info = valid_data.copy()
+        token_confirm = create_access_token(
+            identity=valid_data['username'],
+            expires_delta=timedelta(minutes=30)
+        )
         user_info.update({
-            'user_token_confirm': str(uuid.uuid4())
+            'user_token_confirm': token_confirm
         })
         r.signup.save_user_to_signup_request(**user_info)
 
@@ -138,32 +155,22 @@ class VerifyApiTestCase(APITestCase):
     def test_verify_user_when_fail_test_case_2(self):
         global valid_data
         user_info = valid_data.copy()
+        token_confirm = create_access_token(
+            identity=valid_data['username'],
+            expires_delta=timedelta(minutes=30)
+        )
         user_info.update({
-            'user_token_confirm': str(uuid.uuid4())
-        })
-        user_not_verify = r.signup.save_user_to_signup_request(**user_info)
-
-        url_verify = '{0}/{1}'.format(self.url(), user_not_verify.user_token_confirm + 'm')
-        rv = self.send_request(url=url_verify)
-
-        self.assertEqual(400, rv.status_code)
-        res_data = json.loads(rv.data)
-        self.assertEqual(res_data['message'], 'Access token không hợp lệ')
-
-    def test_verify_user_when_fail_test_case_3(self):
-        global valid_data
-        user_info = valid_data.copy()
-        user_info.update({
-            'user_token_confirm': str(uuid.uuid4())
+            'user_token_confirm': token_confirm
         })
         r.signup.save_user_to_signup_request(**user_info)
 
-        url_verify = '{0}/{1}'.format(self.url(), str(uuid.uuid4()))
+        url_verify = '{0}/{1}'.format(self.url(), token_confirm)
+        self.send_request(url=url_verify)
         rv = self.send_request(url=url_verify)
 
         self.assertEqual(400, rv.status_code)
         res_data = json.loads(rv.data)
-        self.assertEqual(res_data['message'], 'Không tìm thấy tài khoản xác thực, vui lòng kiểm tra lại')
+        self.assertEqual(res_data['msg'], 'Không tìm thấy tài khoản xác thực, vui lòng kiểm tra lại')
 
 
 class LoginApiTestCase(APITestCase):
@@ -196,7 +203,7 @@ class LoginApiTestCase(APITestCase):
         rv = self.send_request(data=invalid_req)
         self.assertEqual(400, rv.status_code)
         res_data = json.loads(rv.data)
-        self.assertEqual(res_data['message'], 'Tên đăng nhập hoặc mật khẩu sai cú pháp')
+        self.assertEqual(res_data['msg'], 'Tên đăng nhập hoặc mật khẩu sai cú pháp')
 
     def test_login_user_when_fail_because_wrong_username_or_password(self):
         # Thêm dữ liệu vào database - bảng user
@@ -211,7 +218,7 @@ class LoginApiTestCase(APITestCase):
 
         self.assertEqual(400, rv1.status_code)
         res_data1 = json.loads(rv1.data)
-        self.assertEqual(res_data1['message'], 'Sai tên đăng nhập hoặc mật khẩu')
+        self.assertEqual(res_data1['msg'], 'Sai tên đăng nhập hoặc mật khẩu')
 
         wrong_user2 = {
             'username': 'anhducc15',
@@ -221,14 +228,18 @@ class LoginApiTestCase(APITestCase):
 
         self.assertEqual(400, rv2.status_code)
         res_data2 = json.loads(rv2.data)
-        self.assertEqual(res_data2['message'], 'Sai tên đăng nhập hoặc mật khẩu')
+        self.assertEqual(res_data2['msg'], 'Sai tên đăng nhập hoặc mật khẩu')
 
     def test_login_user_when_fail_because_not_verify(self):
         # Thêm dữ liệu vào database - bảng signup request
         global valid_data
         user_info = valid_data.copy()
+        token_confirm = create_access_token(
+            identity=valid_data['username'],
+            expires_delta=timedelta(minutes=30)
+        )
         user_info.update({
-            'user_token_confirm': str(uuid.uuid4())
+            'user_token_confirm': token_confirm
         })
         r.signup.save_user_to_signup_request(**user_info)
 
@@ -240,7 +251,7 @@ class LoginApiTestCase(APITestCase):
 
         self.assertEqual(403, rv.status_code)
         res_data = json.loads(rv.data)
-        self.assertEqual(res_data['message'], 'Tài khoản chưa được xác thực, vui lòng kiểm tra email')
+        self.assertEqual(res_data['msg'], 'Tài khoản chưa được xác thực, vui lòng kiểm tra email')
 
 
 class ForgotPasswordApiTestCase(APITestCase):
@@ -250,7 +261,7 @@ class ForgotPasswordApiTestCase(APITestCase):
     def method(self):
         return 'POST'
 
-    @patch('ducttapp.services.mail_service.send_email_update_pass')
+    @patch('ducttapp.services.mail.send_email_update_pass')
     def test_forgot_password_success(self, mock_send_email_update_pass):
         # Thêm dữ liệu vào database - bảng user
         global valid_data
@@ -267,7 +278,7 @@ class ForgotPasswordApiTestCase(APITestCase):
         res_data = json.loads(rv.data)
         self.assertEqual(res_data['ok'], True)
 
-    @patch('ducttapp.services.mail_service.send_email_update_pass')
+    @patch('ducttapp.services.mail.send_email_update_pass')
     def test_forgot_password_fail_because_user_not_exist(self, mock_send_email_update_pass):
         # Thêm dữ liệu vào database - bảng user
         global valid_data
@@ -282,68 +293,4 @@ class ForgotPasswordApiTestCase(APITestCase):
         mock_send_email_update_pass.assert_not_called()
         self.assertEqual(400, rv.status_code)
         res_data = json.loads(rv.data)
-        self.assertEqual(res_data['message'], 'Không tìm thấy tên đăng nhập hoặc email')
-
-
-class UpdatePasswordApiTestCase(APITestCase):
-    def url(self):
-        return '/api/auth/updatePassword'
-
-    def method(self):
-        return 'POST'
-
-    def test_update_password_success(self):
-        # Thêm dữ liệu vào database - bảng user và đăng nhập
-        global valid_data
-        user = r.user.add_user(**valid_data)
-
-        user_token = r.user.add_session_login(user)
-
-        data_req = {
-            'old_password': valid_data['password'],
-            'new_password': valid_data['password'] + 'a'
-        }
-        headers = {
-            'Authorization': user_token.token
-        }
-
-        rv = self.send_request(data=data_req, headers=headers)
-        self.assertEqual(200, rv.status_code)
-        res_data = json.loads(rv.data)
-        self.assertEqual(res_data['ok'], True)
-
-    def test_update_password_fail_because_token_wrong(self):
-        # Thêm dữ liệu vào database - bảng user và đăng nhập
-        global valid_data
-        user = r.user.add_user(**valid_data)
-        user_token = r.user.add_session_login(user)
-        data_req = {
-            'old_password': valid_data['password'],
-            'new_password': valid_data['password'] + 'a'
-        }
-        headers_with_wrong_authorization = {
-            'Authorization': user_token.token + 'a'
-        }
-
-        rv = self.send_request(data=data_req, headers=headers_with_wrong_authorization)
-        self.assertEqual(400, rv.status_code)
-        res_data = json.loads(rv.data)
-        self.assertEqual(res_data['message'], 'Access token không hợp lệ')
-
-    def test_update_password_fail_because_old_password_and_new_password_duplicate(self):
-        # Thêm dữ liệu vào database - bảng user và đăng nhập
-        global valid_data
-        user = r.user.add_user(**valid_data)
-        user_token = r.user.add_session_login(user)
-        data_req = {
-            'old_password': valid_data['password'],
-            'new_password': valid_data['password']
-        }
-        headers = {
-            'Authorization': user_token.token
-        }
-
-        rv = self.send_request(data=data_req, headers=headers)
-        self.assertEqual(400, rv.status_code)
-        res_data = json.loads(rv.data)
-        self.assertEqual(res_data['message'], 'Mật khẩu cũ và mới không được trùng nhau')
+        self.assertEqual(res_data['msg'], 'Không tìm thấy tên đăng nhập hoặc email')

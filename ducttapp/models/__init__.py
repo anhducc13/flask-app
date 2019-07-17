@@ -11,6 +11,7 @@ def init_app(app, **kwargs):
     migrate.init_app(app)
     db.init_app(app)
 
+
 from .signup import Signup_Request, SignupSchema
 from .user import User, UserSchema
-from .user_token import User_Token
+from .revoked_token import RevokedToken
