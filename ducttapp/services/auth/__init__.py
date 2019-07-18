@@ -8,7 +8,7 @@ def check_user_not_verify_by_email_or_username(username='', email=''):
             existed_user_not_verify and
             not existed_user_not_verify.token_verify_expired()
     ):
-        raise extensions.exceptions.ForbiddenException('Tài khoản chưa được xác thực, vui lòng kiểm tra email')
+        raise extensions.exceptions.ForbiddenException('Please confirm yours email')
 
 
 from .login import login

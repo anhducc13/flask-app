@@ -58,7 +58,7 @@ class LoginApiTestCase(APITestCase):
 
         self.assertEqual(400, rv1.status_code)
         res_data1 = json.loads(rv1.data)
-        self.assertEqual(res_data1['message'], 'Sai tên đăng nhập hoặc mật khẩu')
+        self.assertEqual(res_data1['message'], 'Wrong username or password')
 
         wrong_user2 = {
             'username': 'anhducc15',
@@ -68,7 +68,7 @@ class LoginApiTestCase(APITestCase):
 
         self.assertEqual(400, rv2.status_code)
         res_data2 = json.loads(rv2.data)
-        self.assertEqual(res_data2['message'], 'Sai tên đăng nhập hoặc mật khẩu')
+        self.assertEqual(res_data2['message'], 'Wrong username or password')
 
     def test_login_user_when_fail_because_not_verify(self):
         # Thêm dữ liệu vào database - bảng signup request
@@ -91,4 +91,4 @@ class LoginApiTestCase(APITestCase):
 
         self.assertEqual(403, rv.status_code)
         res_data = json.loads(rv.data)
-        self.assertEqual(res_data['message'], 'Tài khoản chưa được xác thực, vui lòng kiểm tra email')
+        self.assertEqual(res_data['message'], 'Please confirm yours email')

@@ -14,7 +14,7 @@ def forgot_pass(username, email):
         username=username)
     if not (user and user.email == email):
         return {
-                   "message": "Không tìm thấy tên đăng nhập hoặc email"
+                   "message": "Username or email not found"
                }, 400
     repositories.user.find_history_pass_change_with_times(
         username=username,
