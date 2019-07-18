@@ -1,7 +1,5 @@
 # coding=utf-8
 import json
-from unittest.mock import MagicMock
-from ducttapp.services.mail import send_email_update_pass
 from ducttapp import repositories as r
 from ducttapp.tests.api import APITestCase
 
