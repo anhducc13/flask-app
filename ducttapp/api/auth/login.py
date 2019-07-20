@@ -14,3 +14,4 @@ class Login(Resource):
         data = request.json or request.args
         result = services.auth.login(**data)
         return result
+
