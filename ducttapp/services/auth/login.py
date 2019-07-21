@@ -1,6 +1,4 @@
-from datetime import datetime, timedelta
-from ducttapp import repositories
-from flask_jwt_extended import create_access_token
+from ducttapp import repositories, extensions
 from . import check_user_not_verify_by_email_or_username
 
 
@@ -9,17 +7,7 @@ def login(username, password):
     user = repositories.user.find_one_by_email_or_username_in_user(username=username)
 
     if not user or not user.check_password(password):
-        return {
-                   "message": "Wrong username or password"
-               }, 400
-    access_token = create_access_token(identity=username, expires_delta=timedelta(minutes=2))
-    repositories.user.update_user(
-        user=user,
-        last_login=datetime.now()
-    )
-    response = {
-        "accessToken": access_token,
-        "username": user.username,
-        "timeExpired": datetime.timestamp(datetime.now() + timedelta(minutes=2))
-    }
-    return response, 200
+        raise extensions.exceptions.BadRequestException(
+            message="Wrong username or password"
+        )
+    return user

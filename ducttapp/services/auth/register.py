@@ -23,15 +23,15 @@ def register(username, email, password, **kwargs):
         identity=username,
         expires_delta=timedelta(minutes=30)
     )
+    send_email_verify(
+        email=email,
+        token_verify=token_verify
+    )
     user = repositories.signup.save_user_to_signup_request(
         username=username,
         email=email,
         password=password,
         user_token_confirm=token_verify,
         **kwargs
-    )
-    send_email_verify(
-        email=email,
-        token_verify=token_verify
     )
     return user.to_dict(), 201

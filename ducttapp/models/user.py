@@ -79,10 +79,11 @@ class UserSchema:
         )
     }
     schema_login_res = {
+        'login': fields.Boolean(required=True, description='Login'),
         'username': fields.String(required=True, description='user name login'),
-        'accessToken': fields.String(required=True, description='access token login'),
-        'timeExpired': fields.Float(required=True, description='time expired login session'),
-        'isAdmin': fields.Boolean(required=True, description='Admin or not')
+        # 'accessToken': fields.String(required=True, description='access token login'),
+        # 'timeExpired': fields.Float(required=True, description='time expired login session'),
+        # 'isAdmin': fields.Boolean(required=True, description='Admin or not')
     }
     schema_update_password_req = {
         'old_password': fields.String(
