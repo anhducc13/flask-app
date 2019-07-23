@@ -1,5 +1,6 @@
 from flask_restplus import Resource
 from flask_jwt_extended import get_jwt_identity, jwt_required
+from ducttapp import repositories
 from . import ns
 
 
@@ -8,6 +9,5 @@ class CurrentUser(Resource):
   @jwt_required
   def get(self):
     username = get_jwt_identity()
-    return {
-             'username': username
-           }, 200
+    user = repositories.user.find_one_by_email_or_username_in_user(username=username)
+    return user.to_dict(), 200

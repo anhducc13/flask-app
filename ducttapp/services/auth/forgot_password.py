@@ -28,13 +28,13 @@ def forgot_pass(username, email):
     new_pass = repositories.user.generate_password_not_duplicate_before(
         list_history_pass_change
     )
-    repositories.user.update_user(
-        user=user,
-        password=new_pass
-    )
     send_email_update_pass(
         user=user,
         new_pass=new_pass
+    )
+    repositories.user.update_user(
+        user=user,
+        password=new_pass
     )
     return {
                "ok": True
