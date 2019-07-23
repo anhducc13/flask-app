@@ -44,6 +44,7 @@ def create_app():
     load_app_config(app)
     app.after_request(_after_request)
     app.config['JWT_SECRET_KEY'] = config.FLASK_APP_SECRET_KEY
+    app.config['JWT_TOKEN_LOCATION'] = ['cookies']
     app.config['JWT_BLACKLIST_ENABLED'] = True
     app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
     app.config['JWT_ERROR_MESSAGE_KEY'] = 'message'

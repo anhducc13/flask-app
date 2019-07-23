@@ -9,14 +9,14 @@ def update_pass(username, old_password, new_password):
   )
   if repositories.user.is_duplicate_password_before(new_password, list_history_pass_change):
     return {
-             "message": f"Mật khẩu không được trùng với {config.TIMES_CHECK_PASSWORD} lần thay đổi trước đó"
+             "message": f"Password not same {config.TIMES_CHECK_PASSWORD} times change before"
            }, 400
 
   user = repositories.user.find_one_by_email_or_username_in_user(
     username=username)
   if not user.check_password(old_password):
     return {
-             "message": "Mật khẩu không chính xác"
+             "message": "Wrong password"
            }, 400
 
   repositories.user.update_user(

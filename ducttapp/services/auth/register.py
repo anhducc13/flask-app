@@ -16,7 +16,7 @@ def register(username, email, password, **kwargs):
     )
     if existed_user or existed_user_not_verify:
         return {
-                   "message": "Tên đăng nhập hoặc email đã tồn tại"
+                   "message": "Existed username or email"
                }, 400
 
     token_verify = create_access_token(
