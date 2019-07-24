@@ -5,19 +5,27 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from .. import mail_service
 from flask_mail import Message
+import os
 
 
 def send_email_verify(email, token_verify):
-  msg = Message('Verify account', sender=config.MAIL_USERNAME, recipients=[email])
-  msg.html = '<a href="{0}/{1}/{2}">Click here</b>'.format(config.BASE_URL, 'api/auth/verify',
-                                                           token_verify)
-  mail_service.send(msg)
+    msg = Message('Verify account', sender=config.MAIL_USERNAME, recipients=[email])
+    msg.html = '<a href="{0}/{1}/{2}">Click here</b>'.format(config.BASE_URL, 'api/auth/verify',
+                                                             token_verify)
+    mail_service.send(msg)
 
 
 def send_email_update_pass(user, new_pass):
-  msg = Message('Reset Password', sender=config.MAIL_USERNAME, recipients=[user.email])
-  msg.body = 'New password: {}'.format(new_pass)
-  mail_service.send(msg)
+    msg = Message('Reset Password', sender=config.MAIL_USERNAME, recipients=[user.email])
+    msg.body = 'New password: {}'.format(new_pass)
+    mail_service.send(msg)
+
+
+def send_email_create_user(username, email, password):
+    msg = Message('Your Account', sender=config.MAIL_USERNAME, recipients=[email])
+    content = 'Your username: {}' + os.linesep + 'Your password: {}'
+    msg.body = content.format(username, password)
+    mail_service.send(msg)
 
 
 # def connect_server_mail():

@@ -10,7 +10,7 @@ def forgot_pass(username, email):
         email=email
     )
 
-    user = repositories.user.find_one_by_email_or_username_in_user(
+    user = repositories.user.find_one_by_email_or_username_in_user_ignore_case(
         username=username)
     if not (user and user.email == email):
         return {

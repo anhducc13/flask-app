@@ -1,8 +1,9 @@
 from ducttapp.models import db, bcrypt
-from datetime import datetime, timedelta
+from datetime import datetime
 from flask_restplus import fields
 from sqlalchemy.orm import relationship
 from ducttapp import helpers
+
 
 class User(db.Model):
     def __init__(self, **kwargs):
@@ -54,16 +55,24 @@ class User(db.Model):
 
 class UserSchema:
     schema_user_create_req = {
-        'email': fields.String(required=True, description='user email address'),
-        'username': fields.String(required=True, description='user username'),
-        'isAdmin': fields.Boolean(required=True, description='Admin or not'),
+        'email': fields.String(
+            required=True,
+            description='user email',
+            pattern=helpers.validators.REGEX_EMAIL
+        ),
+        'username': fields.String(
+            required=True,
+            description='user username',
+            pattern=helpers.validators.REGEX_USERNAME
+        ),
+        'is_admin': fields.Boolean(required=True, description='Admin or not'),
     }
 
     schema_user_create_res = {
         'id': fields.Integer(required=True, description='user id'),
         'email': fields.String(required=True, description='user email address'),
         'username': fields.String(required=True, description='user username'),
-        'isAdmin': fields.Boolean(required=True, description='Admin or not'),
+        'is_admin': fields.Boolean(required=True, description='Admin or not'),
     }
 
     schema_login_req = {

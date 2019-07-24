@@ -1,16 +1,16 @@
 from datetime import timedelta
-from ducttapp import repositories, helpers
+from ducttapp import repositories
 from ..mail import send_email_verify
 from flask_jwt_extended import create_access_token
 
 
 def register(username, email, password, **kwargs):
-    existed_user_not_verify = repositories.signup.find_one_by_email_or_username_in_signup_request(
+    existed_user_not_verify = repositories.signup.find_one_by_email_or_username_in_signup_request_ignore_case(
         username=username,
         email=email
     )
 
-    existed_user = repositories.user.find_one_by_email_or_username_in_user(
+    existed_user = repositories.user.find_one_by_email_or_username_in_user_ignore_case(
         email=email,
         username=username
     )

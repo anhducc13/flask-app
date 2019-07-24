@@ -13,13 +13,12 @@ _login_req = ns.model(
 class Login(Resource):
     @ns.expect(_login_req, validate=True)
     def post(self):
-        print(request.headers)
         data = request.json or request.args
         user = services.auth.login(**data)
         access_token = create_access_token(identity=user.username, expires_delta=timedelta(minutes=10))
         login_res = {
             "login": True,
-            "username": user.username
+            **user.to_dict()
         }
         resp = make_response(login_res)
         resp.set_cookie("access_token_cookie", access_token, max_age=timedelta(minutes=10), httponly=True)

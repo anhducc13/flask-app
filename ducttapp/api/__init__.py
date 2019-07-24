@@ -4,27 +4,14 @@ from .auth import ns as auth_ns
 from .admin import ns as admin_ns
 from ducttapp.extensions.exceptions import global_error_handler
 from ducttapp import jwt
-from ducttapp import models
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
-
-authorizations = {
-    'apiKey': {
-        'type': 'apiKey',
-        'in': 'header',
-        'name': 'Authorization'
-    }
-}
-
-# jwt = JWTManager()
 
 api = Api(
     app=api_bp,
     version='1.0',
     title='Ductt API',
     validate=False,
-    authorizations=authorizations,
-    security='apiKey',
     # doc='' # disable Swagger UI
 )
 
