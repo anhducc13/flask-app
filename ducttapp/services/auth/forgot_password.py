@@ -16,16 +16,16 @@ def forgot_pass(username, email):
         return {
                    "message": "Username or email not found"
                }, 400
-    repositories.user.find_history_pass_change_with_times(
+    repositories.history_pass_change.find_history_pass_change_with_times(
         username=username,
         email=email,
         times=5
     )
-    list_history_pass_change = repositories.user.find_history_pass_change_with_times(
+    list_history_pass_change = repositories.history_pass_change.find_history_pass_change_with_times(
         username=username,
         times=config.TIMES_CHECK_PASSWORD
     )
-    new_pass = repositories.user.generate_password_not_duplicate_before(
+    new_pass = repositories.history_pass_change.generate_password_not_duplicate_before(
         list_history_pass_change
     )
     send_email_update_pass(

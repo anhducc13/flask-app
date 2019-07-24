@@ -1,13 +1,13 @@
-from ducttapp import repositories, helpers
+from ducttapp import repositories
 import config
 
 
 def update_pass(username, old_password, new_password):
-    list_history_pass_change = repositories.user.find_history_pass_change_with_times(
+    list_history_pass_change = repositories.history_pass_change.find_history_pass_change_with_times(
         username=username,
         times=config.TIMES_CHECK_PASSWORD
     )
-    if repositories.user.is_duplicate_password_before(new_password, list_history_pass_change):
+    if repositories.history_pass_change.is_duplicate_password_before(new_password, list_history_pass_change):
         return {
                    "message": f"Password not same {config.TIMES_CHECK_PASSWORD} times change before"
                }, 400

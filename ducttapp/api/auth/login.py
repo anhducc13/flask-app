@@ -16,10 +16,7 @@ class Login(Resource):
         data = request.json or request.args
         user = services.auth.login(**data)
         access_token = create_access_token(identity=user.username, expires_delta=timedelta(minutes=10))
-        login_res = {
-            "login": True,
-            **user.to_dict()
-        }
+        login_res = user.to_dict()
         resp = make_response(login_res)
-        resp.set_cookie("access_token_cookie", access_token, max_age=timedelta(minutes=10), httponly=True)
+        resp.set_cookie("access_token_cookie", access_token, max_age=timedelta(minutes=10))
         return resp

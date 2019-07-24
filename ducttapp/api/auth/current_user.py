@@ -2,6 +2,7 @@ from flask_restplus import Resource
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from ducttapp import repositories
 from . import ns
+from flask import request
 
 
 @ns.route('/currentUser')

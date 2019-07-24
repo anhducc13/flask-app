@@ -16,3 +16,4 @@ from .signup import Signup_Request, SignupSchema
 from .user import User, UserSchema
 from .revoked_token import RevokedToken
 from .history_pass_change import HistoryPassChange
+from .history_wrong_password import HistoryWrongPass

@@ -49,7 +49,8 @@ class User(db.Model):
             'email': self.email,
             'is_admin': self.is_admin,
             'is_active': self.is_active,
-            'last_login': self.last_login,
+            'updated_at': datetime.timestamp(self.updated_at),
+            'created_at': datetime.timestamp(self.created_at)
         }
 
 
@@ -72,7 +73,9 @@ class UserSchema:
         'id': fields.Integer(required=True, description='user id'),
         'email': fields.String(required=True, description='user email address'),
         'username': fields.String(required=True, description='user username'),
-        'is_admin': fields.Boolean(required=True, description='Admin or not'),
+        'is_admin': fields.Boolean(required=True, description='Admin or none'),
+        'is_active': fields.Boolean(required=True, description='Active or inactive'),
+        'updated_at': fields.DateTime(required=True, description='Updated at'),
     }
 
     schema_login_req = {
