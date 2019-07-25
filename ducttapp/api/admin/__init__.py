@@ -1,4 +1,4 @@
-from flask_restplus import Namespace
+from ducttapp.extensions.namespace import Namespace
 
 ns = Namespace('admin', description='Admin operators')
 

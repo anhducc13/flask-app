@@ -1,6 +1,6 @@
 from flask_restplus import Resource
 from flask_jwt_extended import jwt_required, get_raw_jwt
-from flask import make_response
+from flask import make_response, after_this_request
 from ducttapp import repositories
 from . import ns
 
@@ -14,6 +14,8 @@ class Logout(Resource):
         logout_res = {
             'logout': True
         }
-        resp = make_response(logout_res)
-        resp.set_cookie('access_token_cookie', '', expires=0)
-        return resp
+        @after_this_request
+        def set_access_token_cookie(response):
+            response.set_cookie('access_token_cookie', '', expires=0)
+            return response
+        return logout_res

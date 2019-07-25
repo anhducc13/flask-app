@@ -4,7 +4,7 @@ from flask_restplus.model import RawModel as OriginalRawModel
 from jsonschema import Draft4Validator
 from jsonschema.exceptions import ValidationError
 
-from boilerplate.extensions.exceptions import BadRequestException
+from ducttapp.extensions.exceptions import BadRequestException
 
 
 class RawModel(OriginalRawModel):

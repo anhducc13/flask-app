@@ -3,10 +3,11 @@ from ducttapp import models
 from .history_pass_change import add_new_password_to_history_pass_change_table
 
 
-def get_all_users(_page, _limit, q, _sort, _order):
-    if _order == 'desc':
+def get_all_users(_page, _limit, q, _sort, _order, is_active):
+    if _order == 'descend':
         return models.User.query \
             .filter(models.User.username.ilike('%{}%'.format(q))) \
+            .filter(models.User.is_active.in_(is_active)) \
             .order_by(getattr(models.User, _sort).desc()) \
             .limit(_limit) \
             .offset((_page - 1) * _limit) \
@@ -14,6 +15,7 @@ def get_all_users(_page, _limit, q, _sort, _order):
     else:
         return models.User.query \
             .filter(models.User.username.ilike('%{}%'.format(q))) \
+            .filter(models.User.is_active.in_(is_active)) \
             .order_by(getattr(models.User, _sort).asc()) \
             .limit(_limit) \
             .offset((_page - 1) * _limit) \

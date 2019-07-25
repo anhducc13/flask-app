@@ -10,7 +10,7 @@ import os
 
 def send_email_verify(email, token_verify):
     msg = Message('Verify account', sender=config.MAIL_USERNAME, recipients=[email])
-    msg.html = '<a href="{0}/{1}/{2}">Click here</b>'.format(config.BASE_URL, 'api/auth/verify',
+    msg.html = '<a href="{0}/{1}/{2}">Click here</b>'.format(config.BASE_URL, 'api/auth/verifyRegister',
                                                              token_verify)
     mail_service.send(msg)
 

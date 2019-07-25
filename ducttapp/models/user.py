@@ -20,7 +20,8 @@ class User(db.Model):
     is_admin = db.Column(db.Boolean, default=False)
     is_active = db.Column(db.Boolean, default=True)
     last_login = db.Column(db.TIMESTAMP, nullable=True)
-    history_pass_change = relationship("HistoryPassChange")
+    history_pass_change = relationship("HistoryPassChange", cascade="save-update, merge, delete")
+    history_wrong_pass = relationship("HistoryWrongPass", cascade="save-update, merge, delete")
 
     @property
     def password(self):
@@ -50,7 +51,6 @@ class User(db.Model):
             'is_admin': self.is_admin,
             'is_active': self.is_active,
             'updated_at': datetime.timestamp(self.updated_at),
-            'created_at': datetime.timestamp(self.created_at)
         }
 
 

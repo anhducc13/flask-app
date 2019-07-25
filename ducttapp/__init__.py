@@ -58,7 +58,6 @@ def create_app():
     api.init_app(app)
     models.init_app(app)
     services.init_app(app)
-    # CORS(app)
     return app
 
 

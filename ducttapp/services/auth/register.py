@@ -34,4 +34,4 @@ def register(username, email, password, **kwargs):
         user_token_confirm=token_verify,
         **kwargs
     )
-    return user.to_dict(), 201
+    return user
