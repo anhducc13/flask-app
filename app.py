@@ -6,4 +6,4 @@ _DOT_ENV_PATH = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv(_DOT_ENV_PATH)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(ssl_context=('./ssl.crt', './ssl.key'))

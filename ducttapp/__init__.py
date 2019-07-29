@@ -49,6 +49,7 @@ def create_app():
     app.config['JWT_BLACKLIST_ENABLED'] = True
     app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
     app.config['JWT_ERROR_MESSAGE_KEY'] = 'message'
+    app.config['CORS_SUPPORTS_CREDENTIALS'] = True
     jwt.init_app(app)
     @jwt.token_in_blacklist_loader
     def check_if_token_in_blacklist(decrypted_token):
