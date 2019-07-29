@@ -1,5 +1,5 @@
 from datetime import timedelta
-from ducttapp import repositories
+from ducttapp import repositories, extensions
 from ..mail import send_email_verify
 from flask_jwt_extended import create_access_token
 
@@ -15,9 +15,9 @@ def register(username, email, password, **kwargs):
         username=username
     )
     if existed_user or existed_user_not_verify:
-        return {
-                   "message": "Existed username or email"
-               }, 400
+        raise extensions.exceptions.BadRequestException(
+            message="Existed username or email"
+        )
 
     token_verify = create_access_token(
         identity=username,

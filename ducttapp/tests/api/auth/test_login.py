@@ -6,9 +6,23 @@ from datetime import timedelta
 from ducttapp import repositories as r
 from ducttapp.tests.api import APITestCase
 
+invalid_data_wrong_username = {
+    'username': 'anhducc14',
+    'password': 'Anhducc14',
+}
+
+invalid_data_wrong_password = {
+    'username': 'anhducc13',
+    'password': 'Anhducc14',
+}
+
+invalid_data_user_not_verify = {
+    'username': 'ductt97',
+    'password': 'Anhducc13',
+}
+
 valid_data = {
     'username': 'anhducc13',
-    'email': 'zolon@mail-point.net',
     'password': 'Anhducc13',
 }
 
@@ -21,19 +35,13 @@ class LoginApiTestCase(APITestCase):
         return 'POST'
 
     def test_login_user_when_success(self):
-        # Thêm dữ liệu vào database - bảng user
-        global valid_data
-        r.user.add_user(**valid_data)
-
-        req = valid_data.copy()
-        req.pop('email', None)
-        rv = self.send_request(data=req)
-
-        self.assertEqual(200, rv.status_code)
+        rv = self.send_request(data=valid_data)
         res_data = json.loads(rv.data)
-        self.assertEqual(res_data['username'], valid_data['username'])
-        self.assertIsNotNone(res_data['timeExpired'])
-        self.assertIsNotNone(res_data['accessToken'])
+
+        self.assertEqual(200, res_data['code'])
+        self.assertEqual(res_data['data']['username'], valid_data['username'])
+        self.assertIsNotNone(res_data['data']['email'])
+        self.assertIsNotNone(res_data['data']['id'])
 
     def test_login_user_when_fail_because_invalid_request(self):
         invalid_req = {
@@ -45,50 +53,38 @@ class LoginApiTestCase(APITestCase):
         res_data = json.loads(rv.data)
         self.assertEqual(res_data['message'], 'Input payload validation failed')
 
-    def test_login_user_when_fail_because_wrong_username_or_password(self):
-        # Thêm dữ liệu vào database - bảng user
-        global valid_data
-        r.user.add_user(**valid_data)
+    def test_login_user_when_fail_because_wrong_username(self):
+        global invalid_data_wrong_username
+        rv = self.send_request(data=invalid_data_wrong_username)
 
-        wrong_user1 = {
-            'username': valid_data['username'],
-            'password': valid_data['password'] + 'x'
-        }
-        rv1 = self.send_request(data=wrong_user1)
+        self.assertEqual(400, rv.status_code)
+        res_data1 = json.loads(rv.data)
+        self.assertEqual(res_data1['message'], 'Wrong username')
 
-        self.assertEqual(400, rv1.status_code)
-        res_data1 = json.loads(rv1.data)
-        self.assertEqual(res_data1['message'], 'Wrong username or password')
+    def test_login_user_when_fail_because_wrong_password(self):
+        global invalid_data_wrong_password
+        rv = self.send_request(data=invalid_data_wrong_password)
 
-        wrong_user2 = {
-            'username': 'anhducc15',
-            'password': valid_data['password']
-        }
-        rv2 = self.send_request(data=wrong_user2)
-
-        self.assertEqual(400, rv2.status_code)
-        res_data2 = json.loads(rv2.data)
-        self.assertEqual(res_data2['message'], 'Wrong username or password')
+        self.assertEqual(400, rv.status_code)
+        res_data1 = json.loads(rv.data)
+        self.assertEqual(res_data1['message'], 'Wrong password')
 
     def test_login_user_when_fail_because_not_verify(self):
-        # Thêm dữ liệu vào database - bảng signup request
-        global valid_data
-        user_info = valid_data.copy()
-        token_confirm = create_access_token(
-            identity=valid_data['username'],
-            expires_delta=timedelta(minutes=30)
-        )
-        user_info.update({
-            'user_token_confirm': token_confirm
-        })
-        r.signup.save_user_to_signup_request(**user_info)
-
-        valid_user_but_not_verify = {
-            'username': valid_data['username'],
-            'password': valid_data['password']
-        }
-        rv = self.send_request(data=valid_user_but_not_verify)
+        global invalid_data_user_not_verify
+        rv = self.send_request(data=invalid_data_user_not_verify)
 
         self.assertEqual(403, rv.status_code)
         res_data = json.loads(rv.data)
         self.assertEqual(res_data['message'], 'Please confirm yours email')
+
+    def test_login_user_when_wrong_password_5_times(self):
+        global invalid_data_wrong_password
+        self.send_request(data=invalid_data_wrong_password)
+        self.send_request(data=invalid_data_wrong_password)
+        self.send_request(data=invalid_data_wrong_password)
+        self.send_request(data=invalid_data_wrong_password)
+        rv = self.send_request(data=invalid_data_wrong_password)
+
+        self.assertEqual(403, rv.status_code)
+        res_data = json.loads(rv.data)
+        self.assertEqual(res_data['message'], 'Account has been lock for 15 minutes')

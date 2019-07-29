@@ -1,7 +1,7 @@
 from flask import Flask, request
-from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 import re
+from ducttapp.helpers import init_data_db
 
 jwt = JWTManager()
 

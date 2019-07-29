@@ -8,14 +8,14 @@ def verify(token_string):
         token=token_string)
     if not user_signup_request:
         return {
-                   "message": "Không tìm thấy tài khoản xác thực, vui lòng kiểm tra lại"
+                   "message": "Not found account verify"
                }, 400
     try:
         repositories.signup.delete_one_in_signup_request(
             user_signup_request)
         decode = jwt_os.decode(token_string, config.FLASK_APP_SECRET_KEY)
 
-        user = repositories.user.save_user_from_signup_request_to_user(
+        user = repositories.user.add_user(
             username=user_signup_request.username,
             email=user_signup_request.email,
             password_hash=user_signup_request.password_hash,
@@ -26,6 +26,10 @@ def verify(token_string):
                 user_id=user.id,
                 created_at=user.updated_at,
                 password_hash=user.password_hash
+            )
+            repositories.user.add_user_action(
+                user_id=user.id,
+                action_name=config.CREATED
             )
             return {
                        "ok": True

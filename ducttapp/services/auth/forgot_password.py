@@ -1,4 +1,4 @@
-from ducttapp import repositories
+from ducttapp import repositories, extensions
 from ..mail import send_email_update_pass
 from . import check_user_not_verify_by_email_or_username
 import config
@@ -13,9 +13,13 @@ def forgot_pass(username, email):
     user = repositories.user.find_one_by_email_or_username_in_user_ignore_case(
         username=username)
     if not (user and user.email == email):
-        return {
-                   "message": "Username or email not found"
-               }, 400
+        raise extensions.exceptions.BadRequestException(
+            message="Username or email not found"
+        )
+    if not user.check_active():
+        raise extensions.exceptions.ForbiddenException(
+            message="Account has been lock for 15 minutes"
+        )
     repositories.history_pass_change.find_history_pass_change_with_times(
         username=username,
         email=email,
@@ -35,6 +39,10 @@ def forgot_pass(username, email):
     repositories.user.update_user(
         user=user,
         password=new_pass
+    )
+    repositories.user.add_user_action(
+        user_id=user.id,
+        action_name=config.FORGOT_PASSWORD
     )
     return {
                "ok": True

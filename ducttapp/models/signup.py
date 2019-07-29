@@ -34,7 +34,8 @@ class Signup_Request(db.Model):
     def to_dict(self):
         return {
             "username": self.username,
-            "email": self.email
+            "email": self.email,
+            "user_token_confirm": self.user_token_confirm
         }
 
 

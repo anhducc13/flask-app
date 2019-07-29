@@ -23,6 +23,10 @@ def update_pass(username, old_password, new_password):
         user=user,
         password=new_password
     )
+    repositories.user.add_user_action(
+        user_id=user.id,
+        action_name=config.UPDATE_PASSWORD
+    )
     return {
-               "ok": True
+               "update": True
            }, 200

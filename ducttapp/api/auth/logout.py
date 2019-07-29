@@ -1,8 +1,9 @@
 from flask_restplus import Resource
-from flask_jwt_extended import jwt_required, get_raw_jwt
-from flask import make_response, after_this_request
+from flask_jwt_extended import jwt_required, get_raw_jwt, get_jwt_identity
+from flask import after_this_request
 from ducttapp import repositories
 from . import ns
+import config
 
 
 @ns.route('/logout')
@@ -10,6 +11,11 @@ class Logout(Resource):
     @jwt_required
     def get(self):
         jti = get_raw_jwt()['jti']
+        username = get_jwt_identity()
+        repositories.user.add_user_action(
+            username=username,
+            action_name=config.LOGOUT
+        )
         repositories.revoked_token.save_revoked_token_to_database(jti=jti)
         logout_res = {
             'logout': True

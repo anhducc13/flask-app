@@ -12,8 +12,8 @@ def save_user_to_signup_request(**kwargs):
 def find_one_by_email_or_username_in_signup_request_ignore_case(email="", username=""):
     user_in_signup_request = models.Signup_Request.query.filter(
         or_(
-            models.Signup_Request.username == username,
-            models.Signup_Request.email == email
+            models.Signup_Request.username.ilike(username),
+            models.Signup_Request.email.ilike(email)
         )
     ).first()
     return user_in_signup_request or None
@@ -27,5 +27,6 @@ def find_one_by_token_string(token=""):
 
 
 def delete_one_in_signup_request(user):
-    models.db.session.delete(user)
-    models.db.session.commit()
+    if user is not None:
+        models.db.session.delete(user)
+        models.db.session.commit()

@@ -20,7 +20,7 @@ class Register(Resource):
         return user
 
 
-@ns.route('/verifyRegister/<string:token>', endpoint='verify')
+@ns.route('/verifyRegister/<string:token>', endpoint='verifyRegister')
 class Verify(Resource):
     def get(self, token):
         message = services.auth.verify(token)

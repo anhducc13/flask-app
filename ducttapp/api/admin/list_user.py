@@ -1,4 +1,4 @@
-from flask_restplus import Resource, reqparse
+from flask_restplus import Resource, fields
 from flask_jwt_extended import jwt_required
 from flask import request
 from . import ns
@@ -6,12 +6,18 @@ from . import ns
 from ducttapp import models, services
 from ducttapp.helpers.decorators import admin_required
 
-_user_create_res = ns.model('user_req', models.UserSchema.schema_user_create_res)
+
+user_fields = ns.model('UserModel', models.UserSchema.schema_user_create_res)
+
+user_list_fields = ns.model('ListUserModel', {
+    'total': fields.Integer,
+    'results': fields.List(fields.Nested(user_fields))
+})
 
 
 @ns.route('/users/')
 class UserList(Resource):
-    @ns.marshal_list_with(_user_create_res)
+    @ns.marshal_with(user_list_fields)
     @ns.doc(
         params={
             '_page': 'page number',
@@ -32,5 +38,5 @@ class UserList(Resource):
         _sort = params.get('_sort') or 'username'
         _order = params.get('_order') or 'descend'
         is_active = params.getlist('is_active[]')
-        users = services.admin.get_all_users(_page, _limit, q, _sort, _order, is_active)
-        return users
+        result = services.admin.get_all_users(_page, _limit, q, _sort, _order, is_active)
+        return result

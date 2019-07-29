@@ -3,6 +3,7 @@ from datetime import datetime
 from flask_restplus import fields
 from sqlalchemy.orm import relationship
 from ducttapp import helpers
+import config
 
 
 class User(db.Model):
@@ -22,6 +23,7 @@ class User(db.Model):
     last_login = db.Column(db.TIMESTAMP, nullable=True)
     history_pass_change = relationship("HistoryPassChange", cascade="save-update, merge, delete")
     history_wrong_pass = relationship("HistoryWrongPass", cascade="save-update, merge, delete")
+    user_action = relationship("UserAction", cascade="save-update, merge, delete")
 
     @property
     def password(self):
@@ -34,6 +36,13 @@ class User(db.Model):
 
     def check_password(self, password):
         return bcrypt.check_password_hash(self.password_hash, password)
+
+    def check_active(self):
+        if not self.is_active:
+            now = datetime.now()
+            if self.updated_at + config.TIME_LOCK_ACCOUNT <= now:
+                self.is_active = True
+        return self.is_active
 
     def update_attr(self, **kwargs):
         for k, v in kwargs.items():
@@ -89,13 +98,6 @@ class UserSchema:
             description='user password',
             pattern=helpers.validators.REGEX_PASSWORD
         )
-    }
-    schema_login_res = {
-        'login': fields.Boolean(required=True, description='Login'),
-        'username': fields.String(required=True, description='user name login'),
-        # 'accessToken': fields.String(required=True, description='access token login'),
-        # 'timeExpired': fields.Float(required=True, description='time expired login session'),
-        # 'isAdmin': fields.Boolean(required=True, description='Admin or not')
     }
     schema_update_password_req = {
         'old_password': fields.String(
