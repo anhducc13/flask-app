@@ -7,6 +7,11 @@ valid_data = {
     'email': 'trantienduc10@gmail.com',
 }
 
+invalid_data_email_not_valid = {
+    'username': 'anhducc14',
+    'email': 'trantienduc1',
+}
+
 invalid_data_user_not_exist = {
     'username': 'anhducc14',
     'email': 'trantienduc10@gmail.com',
@@ -26,7 +31,15 @@ class ForgotPasswordApiTestCase(APITestCase):
     #
     #     self.assertEqual(200, rv.status_code)
     #     res_data = json.loads(rv.data)
-    #     self.assertEqual(res_data['ok'], True)
+    #     self.assertEqual(res_data['sendPassword'], True)
+
+    def test_forgot_password_fail_because_email_not_valid(self):
+        global invalid_data_email_not_valid
+
+        rv = self.send_request(data=invalid_data_email_not_valid)
+        self.assertEqual(400, rv.status_code)
+        res_data = json.loads(rv.data)
+        self.assertEqual(res_data['message'], 'Please enter email valid')
 
     def test_forgot_password_fail_because_user_not_exist(self):
         global invalid_data_user_not_exist

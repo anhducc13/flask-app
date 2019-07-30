@@ -1,7 +1,19 @@
 from sqlalchemy import or_, func
 from ducttapp import models
 from .history_pass_change import add_new_password_to_history_pass_change_table
-import sys
+from .history_wrong_password import delete_wrong_password_before_milestone
+from datetime import datetime
+import config
+
+
+def check_is_active_of_user(user):
+    if not user.is_active:
+        now = datetime.now()
+        if user.updated_at + config.TIME_LOCK_ACCOUNT <= now:
+            user.is_active = True
+            models.db.session.commit()
+            delete_wrong_password_before_milestone(user_id=user.id)
+    return user.is_active
 
 
 def get_all_users(_page, _limit, q, _sort, _order, is_active):

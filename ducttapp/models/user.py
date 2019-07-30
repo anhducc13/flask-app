@@ -37,13 +37,6 @@ class User(db.Model):
     def check_password(self, password):
         return bcrypt.check_password_hash(self.password_hash, password)
 
-    def check_active(self):
-        if not self.is_active:
-            now = datetime.now()
-            if self.updated_at + config.TIME_LOCK_ACCOUNT <= now:
-                self.is_active = True
-        return self.is_active
-
     def update_attr(self, **kwargs):
         for k, v in kwargs.items():
             setattr(self, k, v)
