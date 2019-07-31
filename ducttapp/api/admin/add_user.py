@@ -17,6 +17,6 @@ class UserAdd(Resource):
     @jwt_required
     @admin_required
     def post(self):
-        data = request.json or request.params
+        data = request.json
         user = services.admin.add_user(**data)
         return user

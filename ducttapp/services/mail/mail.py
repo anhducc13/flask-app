@@ -1,8 +1,4 @@
 import config
-import smtplib
-from smtplib import SMTPException
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 from .. import mail_service
 from flask_mail import Message
 import os
@@ -26,7 +22,6 @@ def send_email_create_user(username, email, password):
     content = 'Your username: {}' + os.linesep + 'Your password: {}'
     msg.body = content.format(username, password)
     mail_service.send(msg)
-
 
 # def connect_server_mail():
 #   server = smtplib.SMTP('{0}:{1}'.format(config.MAIL_SERVER, config.MAIL_PORT))

@@ -17,11 +17,10 @@ def check_wrong_password_to_lock_account(user_id=None):
         .filter(models.HistoryWrongPass.user_id == user_id) \
         .filter(models.HistoryWrongPass.created_at >= milestone)\
         .all()
-    delete_wrong_password_before_milestone(
-        user_id=user_id,
-        milestone=milestone
-    )
-    if len(list_wrong_pass) >= 5:
+    if len(list_wrong_pass) >= config.TIMES_WRONG_PASSWORD_LOCK_ACCOUNT:
+        delete_wrong_password_before_milestone(
+            user_id=user_id
+        )
         user = repositories.user.find_one_by_id(user_id=user_id)
         repositories.user.update_user(user, is_active=False)
         return True
@@ -35,14 +34,19 @@ def check_wrong_password_to_warning_account(user_id=None):
         .filter(models.HistoryWrongPass.user_id == user_id) \
         .filter(models.HistoryWrongPass.created_at >= milestone) \
         .all()
-    if len(list_wrong_pass) >= 3:
+    if len(list_wrong_pass) == config.TIMES_WRONG_PASSWORD_WARNING_ACCOUNT:
         return True
     return False
 
 
-def delete_wrong_password_before_milestone(user_id=None, milestone=datetime.now()):
-    models.HistoryWrongPass.query \
-        .filter(models.HistoryWrongPass.user_id == user_id) \
-        .filter(models.HistoryWrongPass.created_at < milestone) \
-        .delete()
-    models.db.session.commit()
+def delete_wrong_password_before_milestone(user_id=None, milestone=None):
+    if not milestone:
+        models.HistoryWrongPass.query \
+            .filter(models.HistoryWrongPass.user_id == user_id) \
+            .delete()
+    else:
+        models.HistoryWrongPass.query \
+            .filter(models.HistoryWrongPass.user_id == user_id) \
+            .filter(models.HistoryWrongPass.created_at <= milestone) \
+            .delete()
+        models.db.session.commit()

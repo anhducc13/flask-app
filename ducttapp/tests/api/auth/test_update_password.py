@@ -33,7 +33,7 @@ class UpdatePasswordApiTestCase(APITestCase):
         rv = self.send_request(data=valid_data_update_pass)
         self.assertEqual(200, rv.status_code)
         res_data = json.loads(rv.data)
-        self.assertEqual(res_data['update'], True)
+        self.assertEqual(res_data['updatePassword'], True)
 
     def test_update_password_fail_because_wrong_password_then_return_error_response(self):
         global invalid_data_update_password_wrong_password

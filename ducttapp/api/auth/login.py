@@ -6,7 +6,11 @@ from ducttapp import models, services
 from . import ns
 
 _login_req = ns.model(
-    'login_request', models.UserSchema.schema_login_req)
+    name='login_request',
+    model={
+        'username': fields.String(required=True, min_length=1),
+        'password': fields.String(required=True, min_length=1)
+    })
 
 _login_social_req = ns.model(
     name='login_social_request',

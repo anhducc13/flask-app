@@ -1,4 +1,4 @@
-from ducttapp import repositories
+from ducttapp import repositories, extensions
 import config
 
 
@@ -7,17 +7,18 @@ def update_pass(username, old_password, new_password):
         username=username,
         times=config.TIMES_CHECK_PASSWORD
     )
-    if repositories.history_pass_change.is_duplicate_password_before(new_password, list_history_pass_change):
-        return {
-                   "message": f"Password not same {config.TIMES_CHECK_PASSWORD} times change before"
-               }, 400
 
     user = repositories.user.find_one_by_email_or_username_in_user_ignore_case(
         username=username)
     if not user.check_password(old_password):
-        return {
-                   "message": "Wrong password"
-               }, 400
+        raise extensions.exceptions.BadRequestException(
+            message="Wrong password"
+        )
+
+    if repositories.history_pass_change.is_duplicate_password_before(new_password, list_history_pass_change):
+        raise extensions.exceptions.BadRequestException(
+            message=f"Password not same {config.TIMES_CHECK_PASSWORD} times change before"
+        )
 
     repositories.user.update_user(
         user=user,
@@ -28,5 +29,5 @@ def update_pass(username, old_password, new_password):
         action_name=config.UPDATE_PASSWORD
     )
     return {
-               "update": True
+               "updatePassword": True
            }, 200
