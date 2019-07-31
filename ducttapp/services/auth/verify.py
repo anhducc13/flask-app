@@ -14,7 +14,6 @@ def verify(token_string):
         repositories.signup.delete_one_in_signup_request(
             user_signup_request)
         decode = jwt_os.decode(token_string, config.FLASK_APP_SECRET_KEY)
-
         user = repositories.user.add_user(
             username=user_signup_request.username,
             email=user_signup_request.email,

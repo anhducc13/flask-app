@@ -9,7 +9,7 @@ import config
 def check_is_active_of_user(user):
     if not user.is_active:
         now = datetime.now()
-        if user.updated_at + config.TIME_LOCK_ACCOUNT <= now:
+        if user.time_unlock <= now:
             user.is_active = True
             models.db.session.commit()
             delete_wrong_password_before_milestone(user_id=user.id)

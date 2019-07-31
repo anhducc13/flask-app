@@ -1,5 +1,5 @@
 from ducttapp.models import db, bcrypt
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask_restplus import fields
 from sqlalchemy.orm import relationship
 from ducttapp import helpers
@@ -20,7 +20,7 @@ class User(db.Model):
     password_hash = db.Column(db.Text(), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
     is_active = db.Column(db.Boolean, default=True)
-    last_login = db.Column(db.TIMESTAMP, nullable=True)
+    time_unlock = db.Column(db.TIMESTAMP, default=datetime.now)
     history_pass_change = relationship("HistoryPassChange", cascade="save-update, merge, delete")
     history_wrong_pass = relationship("HistoryWrongPass", cascade="save-update, merge, delete")
     user_action = relationship("UserAction", cascade="save-update, merge, delete")
@@ -41,9 +41,6 @@ class User(db.Model):
         for k, v in kwargs.items():
             setattr(self, k, v)
         self.updated_at = datetime.now()
-
-    def update_last_login(self):
-        self.last_login = datetime.now()
 
     def to_dict(self):
         return {

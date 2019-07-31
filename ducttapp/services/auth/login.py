@@ -10,7 +10,7 @@ def login(username, password):
 
     if not user:
         raise extensions.exceptions.BadRequestException(
-            message="Wrong login info"
+            message="Username not found"
         )
 
     if not repositories.user.check_is_active_of_user(user):
@@ -38,7 +38,7 @@ def login(username, password):
                 message="Account warning"
             )
         raise extensions.exceptions.BadRequestException(
-            message="Wrong login info"
+            message="Password is wrong"
         )
     repositories.history_wrong_password.delete_wrong_password_before_milestone(
         user_id=user.id

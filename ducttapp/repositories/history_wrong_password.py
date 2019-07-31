@@ -22,7 +22,8 @@ def check_wrong_password_to_lock_account(user_id=None):
             user_id=user_id
         )
         user = repositories.user.find_one_by_id(user_id=user_id)
-        repositories.user.update_user(user, is_active=False)
+        time_unlock = datetime.now() + config.TIME_LOCK_ACCOUNT
+        repositories.user.update_user(user, is_active=False, time_unlock=time_unlock)
         return True
     return False
 

@@ -1,5 +1,5 @@
 import os, jwt
-from datetime import timedelta
+from datetime import timedelta, datetime
 from dotenv import load_dotenv
 
 _DOT_ENV_PATH = os.path.join(os.path.dirname(__file__), '.env')
@@ -31,6 +31,8 @@ TIME_DELTA_WRONG_PASSWORD_WARNING_ACCOUNT = timedelta(minutes=5)
 TIMES_WRONG_PASSWORD_LOCK_ACCOUNT = 5
 TIME_DELTA_WRONG_PASSWORD_LOCK_ACCOUNT = timedelta(minutes=10)
 TIME_LOCK_ACCOUNT = timedelta(minutes=15)
+
+MAX_TIMESTAMP = datetime(2038, 1, 19, 3, 14, 7)
 
 SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{0}:{1}@{2}:{3}/{4}'.format(
     MYSQL_USER, MYSQL_PASSWORD, MYSQL_HOST, MYSQL_PORT, MYSQL_DATABASE
