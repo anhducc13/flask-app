@@ -1,5 +1,7 @@
 from ducttapp import repositories, extensions, helpers
 from ducttapp.helpers.validators import valid_username, valid_phone_number
+from datetime import datetime
+import config
 
 
 def edit_user(user_id, form_data):
@@ -8,28 +10,92 @@ def edit_user(user_id, form_data):
         raise extensions.exceptions.BadRequestException(
             message="User not found"
         )
-    username = form_data.get('username')
-    fullname = form_data.get('fullname')
-    phone_number = form_data.get('phoneNumber')
-    gender = form_data.get('gender')
-    birthday = form_data.get('birthday')
-
-    if not valid_username(username):
-        raise extensions.exceptions.BadRequestException(
-            message="Username contain letter and number and not special character"
+    if user.is_admin:
+        raise extensions.exceptions.ForbiddenException(
+            message="You can't edit this user"
         )
-    # if not valid_phone_number(phone_number):
-    #     raise extensions.exceptions.BadRequestException(
-    #         message="Phone number is invalid"
-    #     )
-    # if gender not in ["null", "true", "false"]:
-    #     raise extensions.exceptions.BadRequestException(
-    #         message="Gender is invalid"
-    #     )
-    # validate birthday
+
+    field_can_edit = ["fullname", "phoneNumber", "gender", "birthday", "isAdmin", "isActive"]
+    for k in form_data.to_dict(flat=True).keys():
+        if k not in field_can_edit:
+            raise extensions.exceptions.BadRequestException(
+                message="Invalid form data"
+            )
+
+    dict_edit_user = {}
+    fullname = form_data.get('fullname') \
+        if "fullname" in form_data and form_data.get("fullname") != "null" else None
+    phone_number = form_data.get('phoneNumber') \
+        if "phoneNumber" in form_data and form_data.get("phoneNumber") != "null" else None
+    gender = form_data.get('gender') \
+        if "gender" in form_data and form_data.get("gender") != "null" else None
+    birthday = form_data.get('birthday') \
+        if "birthday" in form_data and form_data.get("birthday") != "null" else None
+    is_admin = form_data.get('isAdmin') \
+        if "isAdmin" in form_data and form_data.get("isAdmin") != "null" else None
+    is_active = form_data.get('isActive') \
+        if "isActive" in form_data and form_data.get("isActive") != "null" else None
+
+    # fullname
+    if fullname:
+        dict_edit_user.update({"fullname": fullname})
+
+    # phone_number
+    if phone_number:
+        if not valid_phone_number(phone_number):
+            raise extensions.exceptions.BadRequestException(
+                message="Phone number is invalid"
+            )
+        else:
+            dict_edit_user.update({"phone_number": phone_number})
+
+    # gender
+    if gender:
+        if gender.lower() not in ["true", "false"]:
+            raise extensions.exceptions.BadRequestException(
+                message="Gender is invalid"
+            )
+        else:
+            gender = True if gender.lower() == "true" else False
+            dict_edit_user.update({"gender": gender})
+
+    # is_admin
+    if is_admin:
+        if is_admin.lower() not in ["true", "false"]:
+            raise extensions.exceptions.BadRequestException(
+                message="Field admin is invalid"
+            )
+        else:
+            is_admin = True if is_admin.lower() == "true" else False
+            dict_edit_user.update({"is_admin": is_admin})
+
+    # is_active
+    if is_active:
+        if is_active.lower() not in ["true", "false"]:
+            raise extensions.exceptions.BadRequestException(
+                message="Field active is invalid"
+            )
+        else:
+            is_active = True if is_active.lower() == "true" else False
+            dict_edit_user.update({"is_active": is_active})
+
+    # birthday
+    if birthday:
+        try:
+            birthday_format_datetime = datetime.strptime(birthday, "%Y-%m-%d")
+            dict_edit_user.update({"birthday": birthday_format_datetime})
+        except ValueError:
+            raise extensions.exceptions.BadRequestException(
+                message="Birthday is invalid"
+            )
+
     repositories.user.update_user(
         user=user,
-        username=username,
+        **dict_edit_user
+    )
+    repositories.user.add_user_action(
+        user_id=user.id,
+        action_name=config.UPDATED
     )
     return {
         "update": True

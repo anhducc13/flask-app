@@ -1,5 +1,6 @@
 from ducttapp import repositories, extensions, helpers
 from ..mail import send_email_create_user
+import config
 
 
 def add_user(**kwargs):
@@ -20,4 +21,8 @@ def add_user(**kwargs):
     # gui mail thong bao
     send_email_create_user(username, email, password_generate)
     user = repositories.user.add_user(**kwargs)
+    repositories.user.add_user_action(
+        user_id=user.id,
+        action_name=config.CREATED
+    )
     return user

@@ -38,6 +38,6 @@ class UserAction(Resource):
         _order = params.get('_order') or 'descend'
         action_name = params.getlist('action_name[]') \
             or [config.CREATED, config.LOGIN, config.LOGOUT, config.LOCK,
-                config.FORGOT_PASSWORD, config.UPDATE_PASSWORD]
+                config.FORGOT_PASSWORD, config.UPDATE_PASSWORD, config.UPDATED]
         result = services.admin.get_all_action(int(user_id), int(_page), int(_limit), _order, action_name)
         return result

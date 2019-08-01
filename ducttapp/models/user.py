@@ -15,6 +15,11 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(128), nullable=False, unique=True)
     email = db.Column(db.String(128), nullable=False, unique=True)
+    fullname = db.Column(db.String(128), nullable=True)
+    gender = db.Column(db.Boolean, nullable=True)
+    phone_number = db.Column(db.String(20), nullable=True)
+    birthday = db.Column(db.DateTime, nullable=True)
+    avatar = db.Column(db.String(256), nullable=True)
     created_at = db.Column(db.TIMESTAMP, default=datetime.now)
     updated_at = db.Column(db.TIMESTAMP, default=datetime.now)
     password_hash = db.Column(db.Text(), nullable=False)
@@ -75,6 +80,11 @@ class UserSchema:
         'is_admin': fields.Boolean(required=True, description='Admin or none'),
         'is_active': fields.Boolean(required=True, description='Active or inactive'),
         'updated_at': fields.DateTime(required=True, description='Updated at'),
+        'fullname': fields.String(),
+        'phone_number': fields.String(),
+        'gender': fields.Boolean(),
+        'birthday': fields.DateTime(),
+        'avatar': fields.String()
     }
 
     schema_login_req = {
