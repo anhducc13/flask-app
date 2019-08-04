@@ -76,6 +76,7 @@ def update_user(user, **kwargs):
                 created_at=user.updated_at,
                 password_hash=user.password_hash
             )
+    return user
 
 
 def add_user_action(username=None, user_id=None, action_name=""):

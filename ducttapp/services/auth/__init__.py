@@ -17,4 +17,4 @@ from .update_password import update_pass
 from .forgot_password import forgot_pass
 from .logout import logout
 from .verify import verify
-
+from .edit_profile import edit_profile_user

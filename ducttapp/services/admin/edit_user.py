@@ -15,7 +15,7 @@ def edit_user(user_id, form_data):
             message="You can't edit this user"
         )
 
-    field_can_edit = ["fullname", "phoneNumber", "gender", "birthday", "isAdmin", "isActive"]
+    field_can_edit = ["fullname", "phoneNumber", "gender", "birthday", "isAdmin", "isActive", "avatar", "roles"]
     for k in form_data.to_dict(flat=True).keys():
         if k not in field_can_edit:
             raise extensions.exceptions.BadRequestException(
@@ -35,6 +35,7 @@ def edit_user(user_id, form_data):
         if "isAdmin" in form_data and form_data.get("isAdmin") != "null" else None
     is_active = form_data.get('isActive') \
         if "isActive" in form_data and form_data.get("isActive") != "null" else None
+    roles = form_data.get('roles', None)
 
     # fullname
     if fullname:
@@ -78,6 +79,8 @@ def edit_user(user_id, form_data):
         else:
             is_active = True if is_active.lower() == "true" else False
             dict_edit_user.update({"is_active": is_active})
+            if not is_active:
+                dict_edit_user.update({"time_unlock": config.MAX_TIMESTAMP})
 
     # birthday
     if birthday:
@@ -88,6 +91,21 @@ def edit_user(user_id, form_data):
             raise extensions.exceptions.BadRequestException(
                 message="Birthday is invalid"
             )
+
+    # role
+    list_role = []
+    try:
+        if roles.strip() != "":
+            list_role_string = roles.split(',')
+            list_role = [int(z) for z in list_role_string]
+    except ValueError:
+        raise extensions.exceptions.BadRequestException(
+            message="Invalid role data"
+        )
+    repositories.role.set_role_user(
+        user=user,
+        list_role=list_role
+    )
 
     repositories.user.update_user(
         user=user,

@@ -12,21 +12,26 @@ _login_req = ns.model(
         'password': fields.String(required=True, min_length=1)
     })
 
-_login_social_req = ns.model(
-    name='login_social_request',
-    model={
-        'email': fields.String(required=True)
-    }
+role_model = ns.model(
+    name='Role',
+    model=models.RoleSchema.role_res_schema
 )
 
-_login_res = ns.model(
-    'login_response', models.UserSchema.schema_user_create_res)
+login_fields = models.UserSchema.schema_user_create_res.copy()
+login_fields.update({
+    'roles': fields.List(fields.Nested(role_model))
+})
+
+login_model = ns.model(
+    name='login_response',
+    model=login_fields
+)
 
 
 @ns.route('/login')
 class Login(Resource):
     @ns.expect(_login_req, validate=True)
-    @ns.marshal_with(_login_res)
+    @ns.marshal_with(login_model)
     def post(self):
         data = request.json or request.args
         user = services.auth.login(**data)
@@ -34,6 +39,7 @@ class Login(Resource):
             identity=user.username,
             expires_delta=timedelta(minutes=10)
         )
+
         @after_this_request
         def set_access_token_cookie(response):
             response.set_cookie(
@@ -42,12 +48,5 @@ class Login(Resource):
                 max_age=timedelta(minutes=10),
             )
             return response
+
         return user
-
-
-@ns.route('/loginSocial')
-class LoginSocial(Resource):
-    @ns.expect(_login_social_req, validate=True)
-    @ns.marshal_with(_login_res)
-    def post(self):
-        pass

@@ -6,18 +6,27 @@ from . import ns
 from ducttapp import models, services
 from ducttapp.helpers.decorators import admin_required
 
+role_model = ns.model(
+    name='Role',
+    model=models.RoleSchema.role_res_schema
+)
 
-user_fields = ns.model('UserModel', models.UserSchema.schema_user_create_res)
+user_fields = models.UserSchema.schema_user_create_res.copy()
+user_fields.update({
+    'roles': fields.List(fields.Nested(role_model))
+})
 
-user_list_fields = ns.model('ListUserModel', {
+user_model = ns.model('UserModel', user_fields)
+
+user_list_model = ns.model('ListUserModel', {
     'total': fields.Integer,
-    'results': fields.List(fields.Nested(user_fields))
+    'results': fields.List(fields.Nested(user_model))
 })
 
 
 @ns.route('/users/')
 class UserList(Resource):
-    @ns.marshal_with(user_list_fields)
+    @ns.marshal_with(user_list_model)
     @ns.doc(
         params={
             '_page': 'page number',

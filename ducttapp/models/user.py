@@ -1,12 +1,13 @@
 from ducttapp.models import db, bcrypt
-from datetime import datetime, timedelta
+from datetime import datetime
 from flask_restplus import fields
 from sqlalchemy.orm import relationship
 from ducttapp import helpers
-import config
+from .base import TimestampMixin
+from .role import user_role_table
 
 
-class User(db.Model):
+class User(db.Model, TimestampMixin):
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
             setattr(self, k, v)
@@ -20,8 +21,6 @@ class User(db.Model):
     phone_number = db.Column(db.String(20), nullable=True)
     birthday = db.Column(db.DateTime, nullable=True)
     avatar = db.Column(db.String(256), nullable=True)
-    created_at = db.Column(db.TIMESTAMP, default=datetime.now)
-    updated_at = db.Column(db.TIMESTAMP, default=datetime.now)
     password_hash = db.Column(db.Text(), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
     is_active = db.Column(db.Boolean, default=True)
@@ -29,6 +28,10 @@ class User(db.Model):
     history_pass_change = relationship("HistoryPassChange", cascade="save-update, merge, delete")
     history_wrong_pass = relationship("HistoryWrongPass", cascade="save-update, merge, delete")
     user_action = relationship("UserAction", cascade="save-update, merge, delete")
+    roles = relationship(
+        "Role",
+        secondary=user_role_table,
+        back_populates="users")
 
     @property
     def password(self):
@@ -84,7 +87,7 @@ class UserSchema:
         'phone_number': fields.String(),
         'gender': fields.Boolean(),
         'birthday': fields.DateTime(),
-        'avatar': fields.String()
+        'avatar': fields.String(),
     }
 
     schema_login_req = {
