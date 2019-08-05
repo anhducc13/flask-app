@@ -4,7 +4,7 @@ from flask import request
 from . import ns
 
 from ducttapp import models, services
-from ducttapp.helpers.decorators import admin_required
+from ducttapp.helpers.decorators import user_management_required
 
 role_model = ns.model(
     name='Role',
@@ -38,7 +38,7 @@ class UserList(Resource):
         }
     )
     @jwt_required
-    @admin_required
+    @user_management_required
     def get(self):
         params = request.args
         _page = params.get('_page') or 1

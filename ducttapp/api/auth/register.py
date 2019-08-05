@@ -1,6 +1,7 @@
 from flask_restplus import Resource
 from flask import request
 from ducttapp import models, services
+from flask_jwt_extended import jwt_required
 from . import ns
 
 _signup_request_req = ns.model(
@@ -20,9 +21,10 @@ class Register(Resource):
         return user
 
 
-@ns.route('/verifyRegister/<string:token>', endpoint='verifyRegister')
+@ns.route('/verifyRegister')
 class Verify(Resource):
-    def get(self, token):
-        message = services.auth.verify(token)
-        return message
+    @jwt_required
+    def get(self):
+        token = request.args['jwt']
+        return services.auth.verify(token)
 

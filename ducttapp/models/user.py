@@ -32,6 +32,7 @@ class User(db.Model, TimestampMixin):
         "Role",
         secondary=user_role_table,
         back_populates="users")
+    categories = relationship("UserCategoryAction", back_populates="user")
 
     @property
     def password(self):

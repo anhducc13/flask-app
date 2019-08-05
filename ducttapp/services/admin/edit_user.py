@@ -10,10 +10,6 @@ def edit_user(user_id, form_data):
         raise extensions.exceptions.BadRequestException(
             message="User not found"
         )
-    if user.is_admin:
-        raise extensions.exceptions.ForbiddenException(
-            message="You can't edit this user"
-        )
 
     field_can_edit = ["fullname", "phoneNumber", "gender", "birthday", "isAdmin", "isActive", "avatar", "roles"]
     for k in form_data.to_dict(flat=True).keys():
@@ -93,19 +89,20 @@ def edit_user(user_id, form_data):
             )
 
     # role
-    list_role = []
-    try:
-        if roles.strip() != "":
-            list_role_string = roles.split(',')
-            list_role = [int(z) for z in list_role_string]
-    except ValueError:
-        raise extensions.exceptions.BadRequestException(
-            message="Invalid role data"
+    if roles:
+        list_role = []
+        try:
+            if roles.strip() != "":
+                list_role_string = roles.split(',')
+                list_role = [int(z) for z in list_role_string]
+        except ValueError:
+            raise extensions.exceptions.BadRequestException(
+                message="Invalid role data"
+            )
+        repositories.role.set_role_user(
+            user=user,
+            list_role=list_role
         )
-    repositories.role.set_role_user(
-        user=user,
-        list_role=list_role
-    )
 
     repositories.user.update_user(
         user=user,

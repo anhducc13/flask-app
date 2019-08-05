@@ -1,14 +1,20 @@
 import config
 from .. import mail_service
+import logging
+from smtplib import SMTPAuthenticationError, SMTPServerDisconnected, SMTPException
 from flask_mail import Message
+from flask import render_template
 import os
+
+__author__ = 'Duc.tt'
+_logger = logging.getLogger(__name__)
+MAX_SEND_EMAIL_RETRIES = 3
 
 
 def send_email_verify(email, token_verify):
-    msg = Message('Verify account', sender=config.MAIL_USERNAME, recipients=[email])
-    msg.html = '<a href="{0}/{1}/{2}">Click here</b>'.format(config.BASE_URL, 'api/auth/verifyRegister',
-                                                             token_verify)
-    mail_service.send(msg)
+    verify_url = f"{config.BASE_URL}/api/auth/verifyRegister?jwt={token_verify}"
+    template = render_template("verify_account.html", verify_url=verify_url)
+    send_email([email], template=template, subject="Confirm create account!")
 
 
 def send_email_update_pass(user, new_pass):
@@ -18,56 +24,23 @@ def send_email_update_pass(user, new_pass):
 
 
 def send_email_create_user(username, email, password):
-    msg = Message('Your Account', sender=config.MAIL_USERNAME, recipients=[email])
-    content = 'Your username: {}' + os.linesep + 'Your password: {}'
-    msg.body = content.format(username, password)
-    mail_service.send(msg)
+    template = render_template("create_account.html", username=username, password=password)
+    send_email([email], template=template, subject="Create account success")
 
-# def connect_server_mail():
-#   server = smtplib.SMTP('{0}:{1}'.format(config.MAIL_SERVER, config.MAIL_PORT))
-#   server.ehlo()
-#   server.starttls()
-#   server.login(config.MAIL_USERNAME, config.MAIL_PASSWORD)
-#   return server
-#
-#
-# def config_message_mail_before_send(_subject, _from, _to, _message_content):
-#   msg = MIMEMultipart('alternative')
-#   msg['Subject'] = _subject
-#   msg['From'] = _from
-#   msg['To'] = _to
-#   msg.attach(MIMEText(_message_content, 'html'))
-#   return msg
-#
-#
-# def send_email(_subject, _from, _to, _message_content):
-#   try:
-#     server = connect_server_mail()
-#     msg = config_message_mail_before_send(_subject, _from, _to, _message_content)
-#     server.sendmail(_from, _to, msg.as_string())
-#     server.quit()
-#   except SMTPException as e:
-#     return {
-#              "message": e.strerror
-#            }, 500
-#
-#
-# def send_email_verify(email, token_verify):
-#   msg_content = '<a href="{0}/{1}/{2}">Click here</b>'.format(config.BASE_URL, 'api/auth/verify',
-#                                                               token_verify)
-#   send_email(
-#     _subject='Verify account',
-#     _from=config.MAIL_USERNAME,
-#     _to=email,
-#     _message_content=msg_content
-#   )
-#
-#
-# def send_email_update_pass(user, new_pass):
-#   msg_content = 'New password: {}'.format(new_pass)
-#   send_email(
-#     _subject='Reset Password',
-#     _from=config.MAIL_USERNAME,
-#     _to=user.email,
-#     _message_content=msg_content
-#   )
+
+def send_email(to, template, subject, retries=0):
+    try:
+        message = Message(subject=subject,
+                          sender=config.MAIL_USERNAME,
+                          recipients=to)
+        message.html = template
+
+        mail_service.send(message)
+    except SMTPServerDisconnected as e:
+        if retries < MAX_SEND_EMAIL_RETRIES:
+            send_email([to], template, retries=retries+1)
+        else:
+            raise e
+    except SMTPException as e:
+        _logger.error(f'Catch an error when send email: {str(e)}')
+        _logger.exception(e)
