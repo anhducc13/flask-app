@@ -26,7 +26,7 @@ user_create_req = ns.model(
 user_create_res = ns.model('user_req', models.UserSchema.schema_user_create_res)
 
 
-@ns.route('/user')
+@ns.route('/')
 class UserAdd(Resource):
     @ns.expect(user_create_req, validate=True)
     @ns.marshal_with(user_create_res)

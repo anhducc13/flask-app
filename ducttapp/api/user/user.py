@@ -26,7 +26,7 @@ _update_user_res = ns.model(
 )
 
 
-@ns.route('/user/<int:user_id>')
+@ns.route('/<int:user_id>')
 class User(Resource):
     @jwt_required
     @user_management_required

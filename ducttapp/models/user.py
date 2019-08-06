@@ -16,7 +16,7 @@ class User(db.Model, TimestampMixin):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(128), nullable=False, unique=True)
     email = db.Column(db.String(128), nullable=False, unique=True)
-    fullname = db.Column(db.String(128), nullable=True)
+    fullname = db.Column(db.String(128, collation='utf8mb4_general_ci', convert_unicode=True), nullable=True)
     gender = db.Column(db.Boolean, nullable=True)
     phone_number = db.Column(db.String(20), nullable=True)
     birthday = db.Column(db.DateTime, nullable=True)

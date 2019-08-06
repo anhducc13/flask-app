@@ -59,7 +59,7 @@ class LoginApiTestCase(APITestCase):
 
         self.assertEqual(400, rv.status_code)
         res_data1 = json.loads(rv.data)
-        self.assertEqual(res_data1['message'], 'Wrong login info')
+        self.assertEqual(res_data1['message'], 'Username not found')
 
     def test_login_user_when_fail_because_wrong_password(self):
         global invalid_data_wrong_password
@@ -67,7 +67,7 @@ class LoginApiTestCase(APITestCase):
 
         self.assertEqual(400, rv.status_code)
         res_data1 = json.loads(rv.data)
-        self.assertEqual(res_data1['message'], 'Wrong login info')
+        self.assertEqual(res_data1['message'], 'Password is wrong')
 
     def test_login_user_when_fail_because_not_verify(self):
         global invalid_data_user_not_verify

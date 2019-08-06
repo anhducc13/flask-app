@@ -17,15 +17,15 @@ class VerifyApiTestCase(APITestCase):
         return 'GET'
 
     def test_verify_user_when_success(self):
-        url_verify = '{0}/{1}'.format(self.url(), config.JWT_TEST)
+        url_verify = '{0}?jwt={1}'.format(self.url(), config.JWT_TEST)
         print(url_verify)
         rv = self.send_request(url=url_verify)
         self.assertEqual(200, rv.status_code)
         res_data = json.loads(rv.data)
-        self.assertEqual(res_data['ok'], True)
+        self.assertEqual(res_data['verify'], True)
 
     def test_verify_user_when_success_then_add_to_table_user(self):
-        url_verify = '{0}/{1}'.format(self.url(), config.JWT_TEST)
+        url_verify = '{0}?jwt={1}'.format(self.url(), config.JWT_TEST)
         self.send_request(url=url_verify)
 
         user_verified = user_not_verify.copy()
@@ -38,13 +38,13 @@ class VerifyApiTestCase(APITestCase):
     def test_verify_user_when_fail_test_case_1(self):
         url_verify = '{0}'.format(self.url())
         rv = self.send_request(url=url_verify)
-        self.assertEqual(404, rv.status_code)
+        self.assertEqual(401, rv.status_code)
 
     def test_verify_user_when_fail_test_case_2(self):
-        url_verify = '{0}/{1}'.format(self.url(), config.JWT_TEST + 'x')
+        url_verify = '{0}?jwt={1}'.format(self.url(), config.JWT_TEST + 'x')
         self.send_request(url=url_verify)
         rv = self.send_request(url=url_verify)
 
-        self.assertEqual(400, rv.status_code)
+        self.assertEqual(422, rv.status_code)
         res_data = json.loads(rv.data)
-        self.assertEqual(res_data['message'], 'Not found account verify')
+        self.assertEqual(res_data['message'], 'Signature verification failed')

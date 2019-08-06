@@ -34,7 +34,7 @@ TIME_LOCK_ACCOUNT = timedelta(minutes=15)
 
 MAX_TIMESTAMP = datetime(2038, 1, 19, 3, 14, 7)
 
-SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{0}:{1}@{2}:{3}/{4}'.format(
+SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{0}:{1}@{2}:{3}/{4}?charset=utf8mb4'.format(
     MYSQL_USER, MYSQL_PASSWORD, MYSQL_HOST, MYSQL_PORT, MYSQL_DATABASE
 )
 SQLALCHEMY_TRACK_MODIFICATIONS = True
@@ -51,5 +51,5 @@ LOCK = 'LOCK'
 
 
 # JWT VALID
-JWT_TEST = jwt.encode({'username': 'ductt97'}, FLASK_APP_SECRET_KEY).decode('utf-8')
+JWT_TEST = jwt.encode({'identity': 'ductt97'}, FLASK_APP_SECRET_KEY).decode('utf-8')
 

@@ -8,7 +8,7 @@ def admin_required(func):
         user = repositories.user.find_one_by_email_or_username_in_user_ignore_case(
             username=username)
         if not user.is_admin:
-            raise extensions.exceptions.ForbiddenException(message="Permission denied. You are not admin")
+            raise extensions.exceptions.ForbiddenException(message="Permission denied. You are not user")
         else:
             return func(*args, **kwargs)
     return inner
@@ -21,7 +21,7 @@ def user_management_required(func):
             username=username)
         role_user = models.Role.query.filter(models.Role.id == 1).first()
         if user not in role_user.users:
-            raise extensions.exceptions.ForbiddenException(message="Permission denied. You are not user admin")
+            raise extensions.exceptions.ForbiddenException(message="Permission denied. You are not user user")
         else:
             return func(*args, **kwargs)
     return inner
@@ -34,7 +34,7 @@ def category_management_required(func):
             username=username)
         role_category = models.Role.query.filter(models.Role.id == 2).first()
         if user not in role_category.users:
-            raise extensions.exceptions.ForbiddenException(message="Permission denied. You are not category admin")
+            raise extensions.exceptions.ForbiddenException(message="Permission denied. You are not category user")
         else:
             return func(*args, **kwargs)
     return inner

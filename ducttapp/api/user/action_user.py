@@ -16,7 +16,7 @@ user_action_list_field = ns.model('ListUserAction', {
 })
 
 
-@ns.route('/user/action')
+@ns.route('/activity')
 class UserAction(Resource):
     @ns.marshal_with(user_action_list_field)
     @ns.doc(

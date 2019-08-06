@@ -1,6 +1,6 @@
 from ducttapp.extensions.namespace import Namespace
 
-ns = Namespace('admin', description='Admin operators')
+ns = Namespace('user', description='Admin operators')
 
 from .add_user import UserAdd
 from .list_user import UserList

@@ -3,6 +3,7 @@ from .base import TimestampMixin
 from sqlalchemy.orm import relationship
 from sqlalchemy import func
 import enum
+from datetime import datetime
 
 
 class Category(db.Model, TimestampMixin):
@@ -12,14 +13,35 @@ class Category(db.Model, TimestampMixin):
 
     __tablename__ = 'category'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.Text(), nullable=False)
-    description = db.Column(db.Text(), nullable=True)
+    name = db.Column(db.Text(collation='utf8mb4_general_ci', convert_unicode=True), nullable=False)
+    description = db.Column(db.Text(collation='utf8mb4_general_ci', convert_unicode=True), nullable=True)
     is_active = db.Column(db.Boolean, default=True)
     users = relationship("UserCategoryAction", back_populates="category")
 
     def update_attr(self, **kwargs):
         for k, v in kwargs.items():
             setattr(self, k, v)
+        self.updated_at = datetime.now()
+
+    def to_dict(self):
+        from ducttapp.models import User, UserCategoryAction
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'is_active': self.is_active,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at,
+            'user_created': db.session.query(
+                User
+            ).filter(
+                self.id == UserCategoryAction.category_id
+            ).filter(
+                UserCategoryAction.log_name == CategoryAction.CREATED
+            ).filter(
+                User.id == UserCategoryAction.user_id
+            ).first().username or ""
+        }
 
 
 class CategoryAction(enum.Enum):

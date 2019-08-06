@@ -31,7 +31,6 @@ def edit_user(user_id, form_data):
         if "isAdmin" in form_data and form_data.get("isAdmin") != "null" else None
     is_active = form_data.get('isActive') \
         if "isActive" in form_data and form_data.get("isActive") != "null" else None
-    roles = form_data.get('roles', None)
 
     # fullname
     if fullname:
@@ -60,7 +59,7 @@ def edit_user(user_id, form_data):
     if is_admin:
         if is_admin.lower() not in ["true", "false"]:
             raise extensions.exceptions.BadRequestException(
-                message="Field admin is invalid"
+                message="Field user is invalid"
             )
         else:
             is_admin = True if is_admin.lower() == "true" else False
@@ -81,7 +80,7 @@ def edit_user(user_id, form_data):
     # birthday
     if birthday:
         try:
-            birthday_format_datetime = datetime.strptime(birthday, "%Y-%m-%d")
+            birthday_format_datetime = datetime.strptime(birthday[0:10], "%Y-%m-%d")
             dict_edit_user.update({"birthday": birthday_format_datetime})
         except ValueError:
             raise extensions.exceptions.BadRequestException(
@@ -89,7 +88,8 @@ def edit_user(user_id, form_data):
             )
 
     # role
-    if roles:
+    if "roles" in form_data:
+        roles = form_data.get('roles', "")
         list_role = []
         try:
             if roles.strip() != "":

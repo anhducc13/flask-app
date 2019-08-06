@@ -24,7 +24,7 @@ user_list_model = ns.model('ListUserModel', {
 })
 
 
-@ns.route('/users/')
+@ns.route('/list/')
 class UserList(Resource):
     @ns.marshal_with(user_list_model)
     @ns.doc(
