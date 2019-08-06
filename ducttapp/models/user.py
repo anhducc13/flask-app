@@ -14,14 +14,15 @@ class User(db.Model, TimestampMixin):
 
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(128), nullable=False, unique=True)
-    email = db.Column(db.String(128), nullable=False, unique=True)
+    username = db.Column(
+        db.String(128, collation='utf8mb4_general_ci', convert_unicode=True), nullable=False, unique=True)
+    email = db.Column(db.String(128, collation='utf8mb4_general_ci', convert_unicode=True), nullable=False, unique=True)
     fullname = db.Column(db.String(128, collation='utf8mb4_general_ci', convert_unicode=True), nullable=True)
     gender = db.Column(db.Boolean, nullable=True)
     phone_number = db.Column(db.String(20), nullable=True)
     birthday = db.Column(db.DateTime, nullable=True)
     avatar = db.Column(db.String(256), nullable=True)
-    password_hash = db.Column(db.Text(), nullable=False)
+    password_hash = db.Column(db.Text(collation='utf8mb4_general_ci', convert_unicode=True), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
     is_active = db.Column(db.Boolean, default=True)
     time_unlock = db.Column(db.TIMESTAMP, default=datetime.now)
@@ -32,7 +33,7 @@ class User(db.Model, TimestampMixin):
         "Role",
         secondary=user_role_table,
         back_populates="users")
-    categories = relationship("UserCategoryAction", back_populates="user")
+    categories = relationship("UserCategoryAction", back_populates="user", cascade="all, delete-orphan")
 
     @property
     def password(self):

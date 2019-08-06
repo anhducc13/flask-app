@@ -12,12 +12,13 @@ class Signup_Request(db.Model):
 
     __tablename__ = 'signup_request'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(128), nullable=False, unique=True)
-    email = db.Column(db.String(128), nullable=False, unique=True)
-    password_hash = db.Column(db.Text(), nullable=False)
+    username = db.Column(
+        db.String(128, collation='utf8mb4_general_ci', convert_unicode=True), nullable=False, unique=True)
+    email = db.Column(db.String(128, collation='utf8mb4_general_ci', convert_unicode=True), nullable=False, unique=True)
+    password_hash = db.Column(db.Text(collation='utf8mb4_general_ci', convert_unicode=True), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
     expired_time = db.Column(db.TIMESTAMP, default=(datetime.now() + timedelta(minutes=30)))
-    user_token_confirm = db.Column(db.Text(), nullable=False)
+    user_token_confirm = db.Column(db.Text(collation='utf8mb4_general_ci', convert_unicode=True), nullable=False)
 
     @property
     def password(self):

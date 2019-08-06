@@ -13,7 +13,7 @@ user_role_table = db.Table(
 class Role(db.Model):
     __tablename__ = 'role'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    role_name = db.Column(db.String(256), nullable=True)
+    role_name = db.Column(db.String(256, collation='utf8mb4_general_ci', convert_unicode=True), nullable=True)
     users = relationship(
         "User",
         secondary=user_role_table,

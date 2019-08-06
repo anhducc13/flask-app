@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 6a92007486fe
+Revision ID: 97e6b3ef7462
 Revises: 
-Create Date: 2019-08-06 15:36:33.733584
+Create Date: 2019-08-06 20:57:16.370875
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '6a92007486fe'
+revision = '97e6b3ef7462'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -29,36 +29,36 @@ def upgrade():
     )
     op.create_table('revoked_token',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('jti', sa.String(length=255), nullable=False),
+    sa.Column('jti', sa.String(length=255, collation='utf8mb4_general_ci', _expect_unicode=True), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('role',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('role_name', sa.String(length=256), nullable=True),
+    sa.Column('role_name', sa.String(length=256, collation='utf8mb4_general_ci', _expect_unicode=True), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('signup_request',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('username', sa.String(length=128), nullable=False),
-    sa.Column('email', sa.String(length=128), nullable=False),
-    sa.Column('password_hash', sa.Text(), nullable=False),
+    sa.Column('username', sa.String(length=128, collation='utf8mb4_general_ci', _expect_unicode=True), nullable=False),
+    sa.Column('email', sa.String(length=128, collation='utf8mb4_general_ci', _expect_unicode=True), nullable=False),
+    sa.Column('password_hash', sa.Text(collation='utf8mb4_general_ci', _expect_unicode=True), nullable=False),
     sa.Column('is_admin', sa.Boolean(), nullable=True),
     sa.Column('expired_time', sa.TIMESTAMP(), nullable=True),
-    sa.Column('user_token_confirm', sa.Text(), nullable=False),
+    sa.Column('user_token_confirm', sa.Text(collation='utf8mb4_general_ci', _expect_unicode=True), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email'),
     sa.UniqueConstraint('username')
     )
     op.create_table('user',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('username', sa.String(length=128), nullable=False),
-    sa.Column('email', sa.String(length=128), nullable=False),
+    sa.Column('username', sa.String(length=128, collation='utf8mb4_general_ci', _expect_unicode=True), nullable=False),
+    sa.Column('email', sa.String(length=128, collation='utf8mb4_general_ci', _expect_unicode=True), nullable=False),
     sa.Column('fullname', sa.String(length=128, collation='utf8mb4_general_ci', _expect_unicode=True), nullable=True),
     sa.Column('gender', sa.Boolean(), nullable=True),
     sa.Column('phone_number', sa.String(length=20), nullable=True),
     sa.Column('birthday', sa.DateTime(), nullable=True),
     sa.Column('avatar', sa.String(length=256), nullable=True),
-    sa.Column('password_hash', sa.Text(), nullable=False),
+    sa.Column('password_hash', sa.Text(collation='utf8mb4_general_ci', _expect_unicode=True), nullable=False),
     sa.Column('is_admin', sa.Boolean(), nullable=True),
     sa.Column('is_active', sa.Boolean(), nullable=True),
     sa.Column('time_unlock', sa.TIMESTAMP(), nullable=True),
@@ -82,7 +82,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('created_at', sa.TIMESTAMP(), nullable=True),
-    sa.Column('password_hash', sa.Text(), nullable=False),
+    sa.Column('password_hash', sa.Text(collation='utf8mb4_general_ci', _expect_unicode=True), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
@@ -95,7 +95,7 @@ def upgrade():
     )
     op.create_table('user_action',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('action_name', sa.String(length=256), nullable=False),
+    sa.Column('action_name', sa.String(length=256, collation='utf8mb4_general_ci', _expect_unicode=True), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('created_at', sa.TIMESTAMP(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),

@@ -16,7 +16,7 @@ class Category(db.Model, TimestampMixin):
     name = db.Column(db.Text(collation='utf8mb4_general_ci', convert_unicode=True), nullable=False)
     description = db.Column(db.Text(collation='utf8mb4_general_ci', convert_unicode=True), nullable=True)
     is_active = db.Column(db.Boolean, default=True)
-    users = relationship("UserCategoryAction", back_populates="category")
+    users = relationship("UserCategoryAction", back_populates="category", cascade="all, delete-orphan")
 
     def update_attr(self, **kwargs):
         for k, v in kwargs.items():
@@ -58,3 +58,16 @@ class UserCategoryAction(db.Model):
     created_at = db.Column(db.TIMESTAMP, server_default=func.now(), default=func.now(), nullable=False)
     category = relationship("Category", back_populates="users")
     user = relationship("User", back_populates="categories")
+
+    def to_dict(self):
+        from ducttapp.models import User
+        return {
+            'id': self.id,
+            'log_name': self.log_name.value,
+            'created_at': self.created_at,
+            'username': db.session.query(
+                User
+            ).filter(
+                self.user_id == User.id
+            ).first().username or ""
+        }

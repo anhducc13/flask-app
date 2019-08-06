@@ -13,7 +13,7 @@ class HistoryPassChange(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
     created_at = db.Column(db.TIMESTAMP, default=datetime.now)
-    password_hash = db.Column(db.Text(), nullable=False)
+    password_hash = db.Column(db.Text(collation='utf8mb4_general_ci', convert_unicode=True), nullable=False)
 
     def check_password(self, password):
         return bcrypt.check_password_hash(self.password_hash, password)

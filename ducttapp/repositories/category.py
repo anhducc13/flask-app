@@ -56,3 +56,26 @@ def update_category(username="", category_id=None, **kwargs):
             category_log.category = category
             user.categories.append(category_log)
             models.db.session.commit()
+
+
+def get_all_action(category_id, _page, _limit, _order):
+    list_all = models.UserCategoryAction.query \
+        .filter(models.UserCategoryAction.category_id == category_id)
+    total = len(list_all.all())
+    results = []
+    if _order == 'descend':
+        results = list_all \
+            .order_by(models.UserCategoryAction.created_at.desc()) \
+            .limit(_limit) \
+            .offset((_page - 1) * _limit) \
+            .all()
+    else:
+        results = list_all \
+            .order_by(models.UserCategoryAction.created_at.asc()) \
+            .limit(_limit) \
+            .offset((_page - 1) * _limit) \
+            .all()
+    return {
+        'total': total,
+        'results': [x.to_dict() for x in results]
+    }
