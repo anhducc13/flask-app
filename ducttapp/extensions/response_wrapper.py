@@ -8,6 +8,7 @@ def wrap_response(data=None, message="", http_code=200):
     """
     res = {
         'code': http_code,
+        # 'success': http_code == 0,
         'success': http_code // 100 == 2,
         'message': message,
         'data': data,
