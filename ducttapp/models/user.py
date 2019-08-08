@@ -15,7 +15,7 @@ class User(db.Model, TimestampMixin):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(
-        db.String(128, collation='utf8mb4_general_ci', convert_unicode=True), nullable=False, unique=True)
+        db.String(128, collation='utf8mb4_general_ci', convert_unicode=True), nullable=False)
     email = db.Column(db.String(128, collation='utf8mb4_general_ci', convert_unicode=True), nullable=False, unique=True)
     fullname = db.Column(db.String(128, collation='utf8mb4_general_ci', convert_unicode=True), nullable=True)
     gender = db.Column(db.Boolean, nullable=True)
@@ -29,11 +29,13 @@ class User(db.Model, TimestampMixin):
     history_pass_change = relationship("HistoryPassChange", cascade="save-update, merge, delete")
     history_wrong_pass = relationship("HistoryWrongPass", cascade="save-update, merge, delete")
     user_action = relationship("UserAction", cascade="save-update, merge, delete")
+    social_login = relationship("SocialLogin", cascade="save-update, merge, delete")
     roles = relationship(
         "Role",
         secondary=user_role_table,
         back_populates="users")
     categories = relationship("UserCategoryAction", back_populates="user", cascade="all, delete-orphan")
+    books = relationship("UserBookAction", back_populates="user", cascade="all, delete-orphan")
 
     @property
     def password(self):

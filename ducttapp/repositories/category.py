@@ -1,7 +1,7 @@
 from ducttapp import models, repositories
 
 
-def get_all_category(_page, _limit, q, _sort, _order, is_active):
+def get_list_category(_page, _limit, q, _sort, _order, is_active):
     list_all = models.db.session.query(
         models.Category
     ).filter(
@@ -52,7 +52,7 @@ def update_category(username="", category_id=None, **kwargs):
             models.db.session.commit()
             user = repositories.user.find_one_by_email_or_username_in_user_ignore_case(
                 username=username)
-            category_log = models.UserCategoryAction(log_name=models.CategoryAction.UPDATED)
+            category_log = models.UserCategoryAction(log_name=models.LogAction.UPDATED)
             category_log.category = category
             user.categories.append(category_log)
             models.db.session.commit()

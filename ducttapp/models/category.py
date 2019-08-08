@@ -6,6 +6,14 @@ import enum
 from datetime import datetime
 
 
+category_book_table = db.Table(
+    'category_book',
+    db.Model.metadata,
+    db.Column('category_id', db.Integer, db.ForeignKey('category.id', ondelete='CASCADE')),
+    db.Column('book_id', db.Integer, db.ForeignKey('book.id', ondelete='CASCADE'))
+)
+
+
 class Category(db.Model, TimestampMixin):
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
@@ -13,10 +21,14 @@ class Category(db.Model, TimestampMixin):
 
     __tablename__ = 'category'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.Text(collation='utf8mb4_general_ci', convert_unicode=True), nullable=False)
+    name = db.Column(db.String(255, collation='utf8mb4_general_ci', convert_unicode=True), nullable=False, unique=True)
     description = db.Column(db.Text(collation='utf8mb4_general_ci', convert_unicode=True), nullable=True)
     is_active = db.Column(db.Boolean, default=True)
     users = relationship("UserCategoryAction", back_populates="category", cascade="all, delete-orphan")
+    books = relationship(
+        "Book",
+        secondary=category_book_table,
+        back_populates="categories")
 
     def update_attr(self, **kwargs):
         for k, v in kwargs.items():
@@ -37,14 +49,14 @@ class Category(db.Model, TimestampMixin):
             ).filter(
                 self.id == UserCategoryAction.category_id
             ).filter(
-                UserCategoryAction.log_name == CategoryAction.CREATED
+                UserCategoryAction.log_name == LogAction.CREATED
             ).filter(
                 User.id == UserCategoryAction.user_id
             ).first().username or ""
         }
 
 
-class CategoryAction(enum.Enum):
+class LogAction(enum.Enum):
     CREATED = 'CREATED'
     UPDATED = 'UPDATED'
 
@@ -54,7 +66,7 @@ class UserCategoryAction(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
     category_id = db.Column(db.Integer, db.ForeignKey('category.id', ondelete='CASCADE'))
-    log_name = db.Column(db.Enum(CategoryAction), nullable=False, default=CategoryAction.UPDATED)
+    log_name = db.Column(db.Enum(LogAction), nullable=False, default=LogAction.UPDATED)
     created_at = db.Column(db.TIMESTAMP, server_default=func.now(), default=func.now(), nullable=False)
     category = relationship("Category", back_populates="users")
     user = relationship("User", back_populates="categories")

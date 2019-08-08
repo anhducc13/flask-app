@@ -2,6 +2,7 @@ from flask import Blueprint
 from flask_restplus import Api
 from .auth import ns as auth_ns
 from .user import ns as user_ns
+from .book import ns as book_ns
 from .category import ns as category_ns
 from ducttapp.extensions.exceptions import global_error_handler
 from ducttapp import jwt
@@ -27,5 +28,6 @@ def init_app(app, **kwargs):
     api.add_namespace(auth_ns)
     api.add_namespace(user_ns)
     api.add_namespace(category_ns)
+    api.add_namespace(book_ns)
     app.register_blueprint(api_bp)
     api.error_handlers[Exception] = global_error_handler

@@ -5,3 +5,5 @@ from . import history_pass_change
 from . import history_wrong_password
 from . import role
 from . import category
+from . import book
+from . import social_login

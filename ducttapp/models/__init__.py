@@ -20,4 +20,6 @@ from .history_pass_change import HistoryPassChange
 from .history_wrong_password import HistoryWrongPass
 from .user_action import UserAction
 from .role import Role, user_role_table, RoleSchema
-from .category import Category, UserCategoryAction, CategoryAction
+from .category import Category, UserCategoryAction, LogAction, category_book_table
+from .book import Book, UserBookAction
+from .social_login import SocialLogin, SocialName

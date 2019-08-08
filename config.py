@@ -10,7 +10,7 @@ ROOT_DIR = os.path.abspath(os.path.join(
 ))
 
 FLASK_APP_SECRET_KEY = os.getenv('SECRET_KEY')
-
+CLIENT_ID_GOOGLE = os.getenv('CLIENT_ID_GOOGLE')
 MYSQL_DATABASE = os.getenv('MYSQL_DATABASE')
 MYSQL_HOST = os.getenv('MYSQL_HOST')
 MYSQL_USER = os.getenv('MYSQL_USER')

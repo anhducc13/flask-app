@@ -26,6 +26,7 @@ category_create_res = ns.model(
 @ns.route('/')
 class CategoryAdd(Resource):
     @ns.expect(category_create_req, validate=True)
+    @ns.marshal_with(category_create_res)
     @jwt_required
     @category_management_required
     def post(self):

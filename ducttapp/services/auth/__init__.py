@@ -18,3 +18,4 @@ from .forgot_password import forgot_pass
 from .logout import logout
 from .verify import verify
 from .edit_profile import edit_profile_user
+from .login_social import login_social
