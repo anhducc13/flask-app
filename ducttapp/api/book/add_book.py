@@ -36,8 +36,8 @@ class BookAdd(Resource):
     @book_management_required
     def post(self):
         data = request.json
-        username = get_jwt_identity()
-        services.book.add_book(username=username, **data)
+        user_id = get_jwt_identity()
+        services.book.add_book(user_id=user_id, **data)
         return {
             'create': True
         }

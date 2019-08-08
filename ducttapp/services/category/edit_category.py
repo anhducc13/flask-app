@@ -1,7 +1,7 @@
 from ducttapp import extensions, repositories
 
 
-def edit_category(username="", category_id=None, **kwargs):
+def edit_category(user_id=None, category_id=None, **kwargs):
     field_can_edit = ["name", "description", "is_active"]
     for k in kwargs.keys():
         if k not in field_can_edit:
@@ -9,7 +9,7 @@ def edit_category(username="", category_id=None, **kwargs):
                 message="Invalid data edit"
             )
     repositories.category.update_category(
-        username=username,
+        user_id=user_id,
         category_id=category_id,
         **kwargs
     )

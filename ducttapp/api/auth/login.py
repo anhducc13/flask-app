@@ -36,7 +36,7 @@ class Login(Resource):
         data = request.json or request.args
         user = services.auth.login(**data)
         access_token = create_access_token(
-            identity=user.username,
+            identity=user.id,
             expires_delta=timedelta(minutes=10)
         )
 
@@ -77,7 +77,7 @@ class LoginGoogle(Resource):
             social_name=social_name
         )
         access_token = create_access_token(
-            identity=user.username,
+            identity=user.id,
             expires_delta=timedelta(minutes=10)
         )
         @after_this_request

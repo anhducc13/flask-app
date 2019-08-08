@@ -12,9 +12,9 @@ class Book(db.Model, TimestampMixin):
 
     __tablename__ = 'book'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(255, collation='utf8mb4_general_ci', convert_unicode=True), nullable=False, unique=True)
-    author = db.Column(db.Text(collation='utf8mb4_general_ci', convert_unicode=True), nullable=True)
-    description = db.Column(db.Text(collation='utf8mb4_general_ci', convert_unicode=True), nullable=True)
+    name = db.Column(db.String(255, convert_unicode=True), nullable=False, unique=True)
+    author = db.Column(db.Text(convert_unicode=True), nullable=True)
+    description = db.Column(db.Text(convert_unicode=True), nullable=True)
     is_active = db.Column(db.Boolean, default=True)
     star = db.Column(db.SmallInteger, default=5)
     price = db.Column(db.Float, nullable=False)

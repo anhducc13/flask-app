@@ -11,9 +11,9 @@ class Logout(Resource):
     @jwt_required
     def get(self):
         jti = get_raw_jwt()['jti']
-        username = get_jwt_identity()
+        user_id = get_jwt_identity()
         repositories.user.add_user_action(
-            username=username,
+            user_id=user_id,
             action_name=config.LOGOUT
         )
         repositories.revoked_token.save_revoked_token_to_database(jti=jti)

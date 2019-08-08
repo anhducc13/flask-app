@@ -39,9 +39,9 @@ class Category(Resource):
     @category_management_required
     @ns.marshal_with(update_category_res)
     def put(self, category_id):
-        username = get_jwt_identity()
+        user_id = get_jwt_identity()
         data = request.json
-        result = services.category.edit_category(username, category_id, **data)
+        result = services.category.edit_category(user_id, category_id, **data)
         return result
 
     @jwt_required

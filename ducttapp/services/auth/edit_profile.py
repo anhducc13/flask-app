@@ -1,23 +1,25 @@
 from ducttapp import repositories, extensions
-from ducttapp.helpers.validators import valid_phone_number
+from ducttapp.helpers.validators import valid_phone_number, valid_username
 from datetime import datetime
 import config
 
 
-def edit_profile_user(username="", form_data=None):
-    user = repositories.user.find_one_by_email_or_username_in_user_ignore_case(
-        username=username)
+def edit_profile_user(user_id=None, form_data=None):
+    user = repositories.user.find_one_by_id(
+        user_id=user_id)
     if not user:
         raise extensions.exceptions.BadRequestException(
             message="User not found"
         )
-    field_can_edit = ["fullname", "phoneNumber", "gender", "birthday", "avatar"]
+    field_can_edit = ["fullname", "phoneNumber", "gender", "birthday", "avatar", "username"]
     for k in form_data.to_dict(flat=True).keys():
         if k not in field_can_edit:
             raise extensions.exceptions.BadRequestException(
                 message="Invalid form data"
             )
     dict_edit_user = {}
+    username = form_data.get('username') \
+        if "username" in form_data and form_data.get("username") != "" else None
     fullname = form_data.get('fullname') \
         if "fullname" in form_data and form_data.get("fullname") != "" else None
     phone_number = form_data.get('phoneNumber') \
@@ -28,6 +30,21 @@ def edit_profile_user(username="", form_data=None):
         if "birthday" in form_data and form_data.get("birthday") != "" else None
     avatar = form_data.get('avatar') \
         if "avatar" in form_data and form_data.get("avatar") != "" else None
+
+    # username
+    if username:
+        if not valid_username(username):
+            raise extensions.exceptions.BadRequestException(
+                message="Username is invalid"
+            )
+        user_existed = repositories.user.find_one_by_email_or_username_in_user_ignore_case(
+            username=username
+        )
+        if user_existed and user_existed.id != user_id:
+            raise extensions.exceptions.BadRequestException(
+                message="This username has already existed"
+            )
+        dict_edit_user.update({"username": username})
 
     # fullname
     if fullname:

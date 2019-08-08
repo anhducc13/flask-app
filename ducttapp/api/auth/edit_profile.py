@@ -26,9 +26,9 @@ class EditProfile(Resource):
     @jwt_required
     @ns.marshal_with(edit_profile_model)
     def post(self):
-        username = get_jwt_identity()
+        user_id = get_jwt_identity()
         user = services.auth.edit_profile_user(
-            username=username,
+            user_id=user_id,
             form_data=request.form
         )
         return user

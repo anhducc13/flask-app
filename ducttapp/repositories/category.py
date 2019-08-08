@@ -44,14 +44,14 @@ def delete_category_by_id(category_id):
     return category or None
 
 
-def update_category(username="", category_id=None, **kwargs):
-    if username and category_id:
+def update_category(user_id=None, category_id=None, **kwargs):
+    if user_id and category_id:
         category = find_one_by_id(category_id)
         if category:
             category.update_attr(**kwargs)
             models.db.session.commit()
-            user = repositories.user.find_one_by_email_or_username_in_user_ignore_case(
-                username=username)
+            user = repositories.user.find_one_by_id(
+                user_id=user_id)
             category_log = models.UserCategoryAction(log_name=models.LogAction.UPDATED)
             category_log.category = category
             user.categories.append(category_log)

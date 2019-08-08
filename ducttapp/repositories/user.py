@@ -79,12 +79,7 @@ def update_user(user, **kwargs):
     return user
 
 
-def add_user_action(username=None, user_id=None, action_name=""):
-    if user_id is None:
-        user = find_one_by_email_or_username_in_user_ignore_case(
-            username=username
-        )
-        user_id = user.id
+def add_user_action(user_id=None, action_name=""):
     user_action = models.UserAction(
         user_id=user_id,
         action_name=action_name

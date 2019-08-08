@@ -2,14 +2,14 @@ from ducttapp import repositories, extensions
 import config
 
 
-def update_pass(username, old_password, new_password):
+def update_pass(user_id, old_password, new_password):
     list_history_pass_change = repositories.history_pass_change.find_history_pass_change_with_times(
-        username=username,
+        user_id=user_id,
         times=config.TIMES_CHECK_PASSWORD
     )
 
-    user = repositories.user.find_one_by_email_or_username_in_user_ignore_case(
-        username=username)
+    user = repositories.user.find_one_by_id(
+        user_id=user_id)
     if not user.check_password(old_password):
         raise extensions.exceptions.BadRequestException(
             message="Wrong password"

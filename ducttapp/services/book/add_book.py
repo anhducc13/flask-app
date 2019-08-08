@@ -1,9 +1,9 @@
 from ducttapp import repositories, extensions
 
 
-def add_book(username="", **kwargs):
-    user = repositories.user.find_one_by_email_or_username_in_user_ignore_case(
-        username=username
+def add_book(user_id=None, **kwargs):
+    user = repositories.user.find_one_by_id(
+        user_id=user_id
     )
     if not user:
         raise extensions.exceptions.NotFoundException("User not found")

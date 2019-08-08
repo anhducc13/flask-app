@@ -31,8 +31,8 @@ class CategoryAdd(Resource):
     @category_management_required
     def post(self):
         data = request.json
-        username = get_jwt_identity()
-        services.category.add_category(username=username, **data)
+        user_id = get_jwt_identity()
+        services.category.add_category(user_id=user_id, **data)
         return {
             'create': True
         }

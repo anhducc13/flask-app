@@ -25,10 +25,10 @@ class UpdatePassword(Resource):
     @ns.expect(_update_pass_req, validate=True)
     @jwt_required
     def post(self):
-        username = get_jwt_identity()
+        user_id = get_jwt_identity()
         two_pass = request.json or request.args
         result = services.auth.update_pass(
-            username,
+            user_id,
             two_pass['old_password'],
             two_pass['new_password']
         )

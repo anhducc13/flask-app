@@ -39,12 +39,12 @@ class User(Resource):
     @user_management_required
     @ns.marshal_with(_update_user_res)
     def put(self, user_id):
-        current_user = repositories.user.find_one_by_email_or_username_in_user_ignore_case(
-            username=get_jwt_identity()
+        current_user = repositories.user.find_one_by_id(
+            user_id=get_jwt_identity()
         )
         if current_user and current_user.id == user_id:
             raise extensions.exceptions.ForbiddenException(
-                message="You can't edit myself"
+                message="You can't edit myself here. Please do it in profile"
             )
         result = services.admin.edit_user(user_id, request.form)
         return result
@@ -52,8 +52,8 @@ class User(Resource):
     @jwt_required
     @user_management_required
     def delete(self, user_id):
-        current_user = repositories.user.find_one_by_email_or_username_in_user_ignore_case(
-            username=get_jwt_identity()
+        current_user = repositories.user.find_one_by_id(
+            user_id=get_jwt_identity()
         )
         if current_user and current_user.id == user_id:
             raise extensions.exceptions.ForbiddenException(

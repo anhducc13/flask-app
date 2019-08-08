@@ -3,14 +3,9 @@ from ducttapp import models
 from ducttapp import helpers
 
 
-def find_history_pass_change_with_times(username="", email="", times=1):
-    list_history_pass_change = models.db.session.query(models.HistoryPassChange).join(models.User) \
-        .filter(
-        or_(
-            models.User.username == username,
-            models.User.email == email
-        )) \
-        .filter(models.User.id == models.HistoryPassChange.user_id) \
+def find_history_pass_change_with_times(user_id=None, times=1):
+    list_history_pass_change = models.HistoryPassChange.query \
+        .filter(models.HistoryPassChange.user_id == user_id) \
         .order_by(models.HistoryPassChange.created_at.desc()) \
         .limit(times) \
         .all()

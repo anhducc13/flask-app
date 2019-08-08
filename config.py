@@ -51,5 +51,5 @@ LOCK = 'LOCK'
 
 
 # JWT VALID
-JWT_TEST = jwt.encode({'identity': 'ductt97'}, FLASK_APP_SECRET_KEY).decode('utf-8')
+JWT_TEST = jwt.encode({'identity': 1}, FLASK_APP_SECRET_KEY).decode('utf-8')
 

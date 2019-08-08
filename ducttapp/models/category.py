@@ -21,8 +21,8 @@ class Category(db.Model, TimestampMixin):
 
     __tablename__ = 'category'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(255, collation='utf8mb4_general_ci', convert_unicode=True), nullable=False, unique=True)
-    description = db.Column(db.Text(collation='utf8mb4_general_ci', convert_unicode=True), nullable=True)
+    name = db.Column(db.String(255, convert_unicode=True), nullable=False, unique=True)
+    description = db.Column(db.Text(convert_unicode=True), nullable=True)
     is_active = db.Column(db.Boolean, default=True)
     users = relationship("UserCategoryAction", back_populates="category", cascade="all, delete-orphan")
     books = relationship(

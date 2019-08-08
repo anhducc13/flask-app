@@ -27,10 +27,10 @@ class CurrentUser(Resource):
             return None
         try:
             raw_token = decode_token(request.cookies['access_token_cookie'])
-            username = raw_token['identity']
-            user = repositories.user.find_one_by_email_or_username_in_user_ignore_case(
-                username=username
+            user_id = raw_token['identity']
+            user = repositories.user.find_one_by_id(
+                user_id=user_id
             )
             return user
-        except:
+        except ValueError:
             return None
