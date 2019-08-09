@@ -36,7 +36,7 @@ def get_all_users(_page, _limit, q, _sort, _order, is_active):
             .all()
     return {
         'total': total,
-        'results': results
+        'results': [x.to_dict() for x in results]
     }
 
 

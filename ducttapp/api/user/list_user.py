@@ -6,17 +6,24 @@ from . import ns
 from ducttapp import models, services
 from ducttapp.helpers.decorators import user_management_required
 
-role_model = ns.model(
-    name='Role',
-    model=models.RoleSchema.role_res_schema
+
+user_model = ns.model(
+    name='user_model',
+    model={
+        'id': fields.Integer(),
+        'email': fields.String(),
+        'username': fields.String(),
+        'is_admin': fields.Boolean(),
+        'is_active': fields.Boolean(),
+        'updated_at': fields.DateTime(),
+        'fullname': fields.String(),
+        'phone_number': fields.String(),
+        'gender': fields.Boolean(),
+        'birthday': fields.DateTime(),
+        'avatar': fields.String(),
+        'roles': fields.List(fields.Integer())
+    }
 )
-
-user_fields = models.UserSchema.schema_user_create_res.copy()
-user_fields.update({
-    'roles': fields.List(fields.Nested(role_model))
-})
-
-user_model = ns.model('UserModel', user_fields)
 
 user_list_model = ns.model('ListUserModel', {
     'total': fields.Integer,

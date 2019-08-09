@@ -23,13 +23,30 @@ user_create_req = ns.model(
         'roles': fields.List(fields.Integer)
     }
 )
-user_create_res = ns.model('user_req', models.UserSchema.schema_user_create_res)
+
+user_model = ns.model(
+    name='user_model',
+    model={
+        'id': fields.Integer(),
+        'email': fields.String(),
+        'username': fields.String(),
+        'is_admin': fields.Boolean(),
+        'is_active': fields.Boolean(),
+        'updated_at': fields.DateTime(),
+        'fullname': fields.String(),
+        'phone_number': fields.String(),
+        'gender': fields.Boolean(),
+        'birthday': fields.DateTime(),
+        'avatar': fields.String(),
+        'roles': fields.List(fields.Integer())
+    }
+)
 
 
 @ns.route('/')
 class UserAdd(Resource):
     @ns.expect(user_create_req, validate=True)
-    @ns.marshal_with(user_create_res)
+    @ns.marshal_with(user_model)
     @jwt_required
     @user_management_required
     def post(self):

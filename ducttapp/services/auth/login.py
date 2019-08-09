@@ -15,7 +15,7 @@ def login(username, password):
 
     if not repositories.user.check_is_active_of_user(user):
         raise extensions.exceptions.ForbiddenException(
-            message="Account has been lock. Please contact admin"
+            message="Account has been lock"
         )
     if not user.check_password(password):
         repositories.history_wrong_password.add_history_wrong_password(

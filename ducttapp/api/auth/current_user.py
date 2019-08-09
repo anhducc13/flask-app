@@ -4,19 +4,23 @@ from ducttapp import repositories, models
 from flask import request
 from . import ns
 
-
-role_model = ns.model(
-    name='Role',
-    model=models.RoleSchema.role_res_schema
-)
-
-user_fields = models.UserSchema.schema_user_create_res.copy()
-user_fields.update({
-    'roles': fields.List(fields.Nested(role_model))
-})
-
 user_model = ns.model(
-    'current_user_res', user_fields)
+    name='user_res',
+    model={
+        'id': fields.Integer(),
+        'email': fields.String(),
+        'username': fields.String(),
+        'is_admin': fields.Boolean(),
+        'is_active': fields.Boolean(),
+        'updated_at': fields.DateTime(),
+        'fullname': fields.String(),
+        'phone_number': fields.String(),
+        'gender': fields.Boolean(),
+        'birthday': fields.DateTime(),
+        'avatar': fields.String(),
+        'roles': fields.List(fields.Integer())
+    }
+)
 
 
 @ns.route('/currentUser')
@@ -31,6 +35,6 @@ class CurrentUser(Resource):
             user = repositories.user.find_one_by_id(
                 user_id=user_id
             )
-            return user
+            return user.to_dict()
         except ValueError:
             return None

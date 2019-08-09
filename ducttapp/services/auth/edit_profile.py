@@ -4,34 +4,20 @@ from datetime import datetime
 import config
 
 
-def edit_profile_user(user_id=None, form_data=None):
+def edit_profile_user(user_id=None, **kwargs):
     user = repositories.user.find_one_by_id(
         user_id=user_id)
     if not user:
         raise extensions.exceptions.BadRequestException(
             message="User not found"
         )
-    field_can_edit = ["fullname", "phoneNumber", "gender", "birthday", "avatar", "username"]
-    for k in form_data.to_dict(flat=True).keys():
-        if k not in field_can_edit:
+    for k in kwargs.keys():
+        if k not in ["username", "fullname", "phone_number", "gender", "birthday", "avatar"]:
             raise extensions.exceptions.BadRequestException(
-                message="Invalid form data"
+                message=f"Invalid data payload {k}"
             )
-    dict_edit_user = {}
-    username = form_data.get('username') \
-        if "username" in form_data and form_data.get("username") != "" else None
-    fullname = form_data.get('fullname') \
-        if "fullname" in form_data and form_data.get("fullname") != "" else None
-    phone_number = form_data.get('phoneNumber') \
-        if "phoneNumber" in form_data and form_data.get("phoneNumber") != "" else None
-    gender = form_data.get('gender') \
-        if "gender" in form_data and form_data.get("gender") != "" else None
-    birthday = form_data.get('birthday') \
-        if "birthday" in form_data and form_data.get("birthday") != "" else None
-    avatar = form_data.get('avatar') \
-        if "avatar" in form_data and form_data.get("avatar") != "" else None
-
-    # username
+    # validate username
+    username = kwargs.get("username", None)
     if username:
         if not valid_username(username):
             raise extensions.exceptions.BadRequestException(
@@ -44,47 +30,58 @@ def edit_profile_user(user_id=None, form_data=None):
             raise extensions.exceptions.BadRequestException(
                 message="This username has already existed"
             )
-        dict_edit_user.update({"username": username})
 
-    # fullname
-    if fullname:
-        dict_edit_user.update({"fullname": fullname})
+    # validate phone number
+    phone_number = kwargs.get("phone_number", None)
+    if phone_number is None:
+        kwargs.pop("phone_number", None)
+    elif phone_number != "" and not valid_phone_number(phone_number):
+        raise extensions.exceptions.BadRequestException(
+            message="Phone number is invalid"
+        )
 
-    # phone_number
-    if phone_number:
-        if not valid_phone_number(phone_number):
-            raise extensions.exceptions.BadRequestException(
-                message="Phone number is invalid"
-            )
-        else:
-            dict_edit_user.update({"phone_number": phone_number})
+    # validate gender
+    gender = kwargs.get("gender", None)
+    if gender is None:
+        kwargs.pop("gender", None)
+    elif not isinstance(gender, bool):
+        raise extensions.exceptions.BadRequestException(
+            message="Gender is invalid"
+        )
 
-    # gender
-    if gender:
-        if gender.lower() not in ["true", "false"]:
-            raise extensions.exceptions.BadRequestException(
-                message="Gender is invalid"
-            )
-        else:
-            gender = True if gender.lower() == "true" else False
-            dict_edit_user.update({"gender": gender})
+    # validate fullname
+    fullname = kwargs.get("fullname", None)
+    if fullname is None:
+        kwargs.pop("fullname", None)
+    elif not isinstance(fullname, str):
+        raise extensions.exceptions.BadRequestException(
+            message="Fullname is invalid"
+        )
 
-    # birthday
-    if birthday:
+    # validate avatar
+    avatar = kwargs.get("avatar", None)
+    if avatar is None:
+        kwargs.pop("avatar", None)
+    elif not isinstance(avatar, str):
+        raise extensions.exceptions.BadRequestException(
+            message="Avatar is invalid"
+        )
+
+    # validate birthday
+    birthday = kwargs.get("birthday", None)
+    if birthday is None:
+        kwargs.pop("birthday", None)
+    else:
         try:
-            birthday_format_datetime = datetime.strptime(birthday, "%Y-%m-%d")
-            dict_edit_user.update({"birthday": birthday_format_datetime})
+            time = datetime.strptime(birthday, '%Y-%m-%dT%H:%M:%S.%fZ')
+            kwargs["birthday"] = time
         except ValueError:
             raise extensions.exceptions.BadRequestException(
                 message="Birthday is invalid"
             )
-
-    if avatar:
-        dict_edit_user.update({"avatar": avatar})
-
     user_updated = repositories.user.update_user(
         user=user,
-        **dict_edit_user
+        **kwargs
     )
     repositories.user.add_user_action(
         user_id=user.id,

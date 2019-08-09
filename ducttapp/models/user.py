@@ -57,84 +57,14 @@ class User(db.Model, TimestampMixin):
     def to_dict(self):
         return {
             'id': self.id,
-            'username': self.username,
             'email': self.email,
-            'is_admin': self.is_admin,
+            'username': self.username,
             'is_active': self.is_active,
-            'updated_at': datetime.timestamp(self.updated_at),
+            'updated_at': self.updated_at,
+            'fullname': self.fullname,
+            'phone_number': self.phone_number,
+            'gender': self.gender,
+            'birthday': self.birthday,
+            'avatar': self.avatar,
+            'roles': [r.id for r in self.roles]
         }
-
-
-class UserSchema:
-    schema_user_create_req = {
-        'email': fields.String(
-            required=True,
-            description='user email',
-            pattern=helpers.validators.REGEX_EMAIL
-        ),
-        'username': fields.String(
-            required=True,
-            description='user username',
-            pattern=helpers.validators.REGEX_USERNAME
-        ),
-        'is_admin': fields.Boolean(required=True, description='Admin or not'),
-    }
-
-    schema_user_create_res = {
-        'id': fields.Integer(required=True, description='user id'),
-        'email': fields.String(required=True, description='user email address'),
-        'username': fields.String(required=True, description='user username'),
-        'is_admin': fields.Boolean(required=True, description='Admin or none'),
-        'is_active': fields.Boolean(required=True, description='Active or inactive'),
-        'updated_at': fields.DateTime(required=True, description='Updated at'),
-        'fullname': fields.String(),
-        'phone_number': fields.String(),
-        'gender': fields.Boolean(),
-        'birthday': fields.DateTime(),
-        'avatar': fields.String(),
-    }
-
-    schema_login_req = {
-        'username': fields.String(
-            required=True,
-            description='user username',
-            pattern=helpers.validators.REGEX_USERNAME
-        ),
-        'password': fields.String(
-            required=True,
-            description='user password',
-            pattern=helpers.validators.REGEX_PASSWORD
-        )
-    }
-    schema_update_password_req = {
-        'old_password': fields.String(
-            required=True,
-            description='user old password',
-            pattern=helpers.validators.REGEX_PASSWORD
-        ),
-        'new_password': fields.String(
-            required=True,
-            description='user new password',
-            pattern=helpers.validators.REGEX_PASSWORD
-        ),
-    }
-    schema_forgot_password_req = {
-        'username': fields.String(
-            required=True,
-            description='user username',
-            pattern=helpers.validators.REGEX_USERNAME
-        ),
-        'email': fields.String(
-            required=True,
-            description='user email',
-            pattern=helpers.validators.REGEX_EMAIL
-        ),
-    }
-    schema_notify_res = {
-        'ok': fields.Boolean(required=True, description='Task success or not'),
-    }
-
-
-
-
-

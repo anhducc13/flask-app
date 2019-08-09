@@ -12,19 +12,22 @@ _login_req = ns.model(
         'password': fields.String(required=True, min_length=1)
     })
 
-role_model = ns.model(
-    name='Role',
-    model=models.RoleSchema.role_res_schema
-)
-
-login_fields = models.UserSchema.schema_user_create_res.copy()
-login_fields.update({
-    'roles': fields.List(fields.Nested(role_model))
-})
-
 login_model = ns.model(
-    name='login_response',
-    model=login_fields
+    name='login_model',
+    model={
+        'id': fields.Integer(),
+        'email': fields.String(),
+        'username': fields.String(),
+        'is_admin': fields.Boolean(),
+        'is_active': fields.Boolean(),
+        'updated_at': fields.DateTime(),
+        'fullname': fields.String(),
+        'phone_number': fields.String(),
+        'gender': fields.Boolean(),
+        'birthday': fields.DateTime(),
+        'avatar': fields.String(),
+        'roles': fields.List(fields.Integer())
+    }
 )
 
 
@@ -49,7 +52,7 @@ class Login(Resource):
             )
             return response
 
-        return user
+        return user.to_dict()
 
 
 login_social_req = ns.model(
@@ -88,4 +91,4 @@ class LoginGoogle(Resource):
                 max_age=timedelta(minutes=10),
             )
             return response
-        return user
+        return user.to_dict()
