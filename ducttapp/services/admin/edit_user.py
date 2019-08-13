@@ -51,6 +51,8 @@ def edit_user(user_id, **kwargs):
         raise extensions.exceptions.BadRequestException(
             message="Active is invalid"
         )
+    elif not is_active:
+        kwargs.update({'time_unlock': config.MAX_TIMESTAMP})
 
     # validate roles
     roles = kwargs.get("roles", None)

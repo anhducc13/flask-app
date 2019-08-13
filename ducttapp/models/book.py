@@ -32,6 +32,18 @@ class Book(db.Model, TimestampMixin):
         self.updated_at = datetime.now()
 
     def to_dict(self):
+        from ducttapp.models import User, UserBookAction
+
+        user_created = db.session.query(
+            User
+        ).filter(
+            self.id == UserBookAction.book_id
+        ).filter(
+            UserBookAction.log_name == LogAction.CREATED
+        ).filter(
+            User.id == UserBookAction.user_id
+        ).first().username or ""
+
         return {
             'id': self.id,
             'name': self.name,
@@ -41,6 +53,8 @@ class Book(db.Model, TimestampMixin):
             'updated_at': self.updated_at,
             'quantity_in_stock': self.quantity_in_stock,
             'price': self.price,
+            'user_created': user_created,
+            'categories': [x.id for x in self.categories]
         }
 
 

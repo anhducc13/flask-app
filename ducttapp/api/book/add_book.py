@@ -11,9 +11,9 @@ book_create_req = ns.model(
     name='book_create_req',
     model={
         'name': fields.String(required=True),
-        'description': fields.String(required=True),
+        'description': fields.String(),
         'author': fields.String(),
-        'is_active': fields.Boolean(),
+        'is_active': fields.Boolean(required=True),
         'price': fields.Float(required=True),
         'quantity_in_stock': fields.Integer(required=True),
         'categories': fields.List(fields.Integer())
@@ -36,6 +36,7 @@ class BookAdd(Resource):
     @book_management_required
     def post(self):
         data = request.json
+        print(data)
         user_id = get_jwt_identity()
         services.book.add_book(user_id=user_id, **data)
         return {

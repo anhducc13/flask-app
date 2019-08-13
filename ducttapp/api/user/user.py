@@ -55,7 +55,7 @@ class User(Resource):
 
     @jwt_required
     @user_management_required
-    @ns.expect(edit_user_request_model, validate=True)
+    @ns.expect(edit_user_request_model)
     @ns.marshal_with(_update_user_res)
     def put(self, user_id):
         current_user = repositories.user.find_one_by_id(

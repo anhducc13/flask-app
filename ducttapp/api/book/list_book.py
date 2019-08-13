@@ -15,6 +15,8 @@ book_model = ns.model(
         'is_active': fields.Boolean(),
         'created_at': fields.DateTime(),
         'updated_at': fields.DateTime(),
+        'user_created': fields.String(),
+        'categories': fields.List(fields.Integer()),
         'quantity_in_stock': fields.Integer(),
         'price': fields.Float()
     })
