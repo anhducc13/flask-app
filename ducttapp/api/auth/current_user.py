@@ -35,6 +35,6 @@ class CurrentUser(Resource):
             user = repositories.user.find_one_by_id(
                 user_id=user_id
             )
-            return user.to_dict()
+            return user.to_dict() or None
         except ValueError:
             return None

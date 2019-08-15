@@ -37,7 +37,7 @@ class Login(Resource):
     @ns.marshal_with(login_model)
     def post(self):
         data = request.json or request.args
-        user = services.auth.lgin(**data)
+        user = services.auth.login(**data)
         access_token = create_access_token(
             identity=user.id,
             expires_delta=timedelta(minutes=10)

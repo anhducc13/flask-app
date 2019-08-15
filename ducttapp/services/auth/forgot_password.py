@@ -25,12 +25,11 @@ def forgot_pass(username, email):
             message="Account has been lock. Please try after"
         )
     repositories.history_pass_change.find_history_pass_change_with_times(
-        username=username,
-        email=email,
+        user_id=user.id,
         times=5
     )
     list_history_pass_change = repositories.history_pass_change.find_history_pass_change_with_times(
-        username=username,
+        user_id=user.id,
         times=config.TIMES_CHECK_PASSWORD
     )
     new_pass = repositories.history_pass_change.generate_password_not_duplicate_before(
@@ -50,5 +49,5 @@ def forgot_pass(username, email):
     )
     return {
                "sendPassword": True
-           }, 200
+           }
 
