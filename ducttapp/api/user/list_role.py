@@ -4,7 +4,6 @@ from flask import request
 from . import ns
 
 from ducttapp import models, services
-from ducttapp.helpers.decorators import user_management_required
 
 role_model = ns.model(
     name='Role',
@@ -16,7 +15,6 @@ role_model = ns.model(
 class RoleList(Resource):
     @ns.marshal_with(role_model)
     @jwt_required
-    @user_management_required
     def get(self):
         roles = services.admin.get_all_roles()
         return roles
